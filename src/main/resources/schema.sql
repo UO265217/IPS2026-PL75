@@ -1,7 +1,14 @@
---Primero se deben borrar todas las tablas (de detalle a maestro) y lugo anyadirlas (de maestro a detalle)
---(en este caso en cada aplicacion se usa solo una tabla, por lo que no hace falta)
-
---Para giis.demo.tkrun:
-drop table Carreras;
-create table Carreras (id int primary key not null, inicio date not null, fin date not null, fecha date not null, descr varchar(32), check(inicio<=fin), check(fin<fecha));
-
+drop table if exists empleado;
+create table empleado (
+    id integer primary key autoincrement,
+    nombre varchar(50) not null,
+    apellido varchar(50) not null,
+    dni varchar(9) not null unique,
+    telefono varchar(15),
+    fechaNacimiento date not null,
+    tipo varchar(15) not null
+                      check (tipo in ('DEPORTIVO', 'NO_DEPORTIVO')),
+    posicion varchar(40) not null,
+    salarioAnual decimal(10,2) not null
+                      check (salarioAnual > 0)
+)
