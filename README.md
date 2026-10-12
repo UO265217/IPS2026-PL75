@@ -59,7 +59,7 @@ Preparación del repositorio y del proyecto:
     si hubiera sido creado desde el propio Eclipse
   - *Run As->Maven install*: Ejecuta este (o otros) comandos maven desde Eclipse
   - Ejecutar los tests en `src/main/test` o el programa principal (aplicación swing)
-    en la clase `giis.demo.util.SwingMain`
+    en la clase `giis.ips.SwingMain`
 
 ## Reports
 

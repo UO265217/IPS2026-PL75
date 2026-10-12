@@ -1,4 +1,4 @@
-package giis.demo.util;
+package giis.ips.util;
 import java.io.FileInputStream;
 import java.io.IOException;
 

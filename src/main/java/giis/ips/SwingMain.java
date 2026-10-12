@@ -1,4 +1,9 @@
-package giis.demo.util;
+package giis.ips;
+
+import giis.ips.util.Database;
+import giis.ips.empleados.AltaEmpleadoController;
+import giis.ips.empleados.AltaEmpleadoModel;
+import giis.ips.empleados.AltaEmpleadoView;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -71,6 +76,16 @@ public class SwingMain {
 			}
 		});
 		frame.getContentPane().add(btnCargarDatosIniciales);
+
+		JButton btnInicializarAltaDeEmpleados = new JButton("Inicializar Alta de Empleados");
+		btnInicializarAltaDeEmpleados.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				AltaEmpleadoController controller = new AltaEmpleadoController(new AltaEmpleadoModel(), new AltaEmpleadoView());
+				controller.initController();
+			}
+		});
+		frame.getContentPane().add(btnInicializarAltaDeEmpleados);
 	}
 
 	public JFrame getFrame() { return this.frame; }

@@ -1,4 +1,4 @@
-package giis.demo.util;
+package giis.ips.util;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
