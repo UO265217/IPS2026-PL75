@@ -4,6 +4,9 @@ import giis.ips.util.Database;
 import giis.ips.empleados.AltaEmpleadoController;
 import giis.ips.empleados.AltaEmpleadoModel;
 import giis.ips.empleados.AltaEmpleadoView;
+import giis.ips.empleados.GestionEmpleadosController;
+import giis.ips.empleados.GestionEmpleadosModel;
+import giis.ips.empleados.GestionEmpleadosView;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -52,7 +55,7 @@ public class SwingMain {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 185);
+		frame.setBounds(0, 0, 287, 220);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -86,6 +89,16 @@ public class SwingMain {
 			}
 		});
 		frame.getContentPane().add(btnInicializarAltaDeEmpleados);
+
+		JButton btnGestionEmpleados = new JButton("Modificar y eliminar empleados");
+		btnGestionEmpleados.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				GestionEmpleadosController controller = new GestionEmpleadosController(new GestionEmpleadosModel(), new GestionEmpleadosView());
+				controller.initController();
+			}
+		});
+		frame.getContentPane().add(btnGestionEmpleados);
 	}
 
 	public JFrame getFrame() { return this.frame; }
