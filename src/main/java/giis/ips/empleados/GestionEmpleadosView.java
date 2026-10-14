@@ -50,11 +50,13 @@ public class GestionEmpleadosView {
         txtFechaNacimiento = addCampo("Fecha de nacimiento (aaaa-mm-dd):", "txtFechaNacimiento");
         txtSalario = addCampo("Salario bruto anual:", "txtSalario");
 
-        // El puesto de trabajo solo se muestra: no se puede cambiar
-        txtTipo = addCampo("Tipo de empleado:", "txtTipo");
-        txtTipo.setEditable(false);
-        txtPosicion = addCampo("Posición:", "txtPosicion");
-        txtPosicion.setEditable(false);
+        // El puesto de trabajo solo se muestra difuminado: no se puede cambiar
+        txtTipo = addCampoNoEditable("Tipo de empleado:", "txtTipo");
+        txtPosicion = addCampoNoEditable("Posición:", "txtPosicion");
+        JLabel lblAviso = new JLabel("El puesto de trabajo no se puede modificar");
+        lblAviso.setEnabled(false);
+        lblAviso.setFont(lblAviso.getFont().deriveFont(java.awt.Font.ITALIC));
+        frame.getContentPane().add(lblAviso, "skip, wrap");
 
         btnCerrar = new JButton("Cerrar");
         btnCerrar.setName("btnCerrar");
@@ -75,6 +77,22 @@ public class GestionEmpleadosView {
         JTextField txt = new JTextField(20);
         txt.setName(nombre);
         lbl.setLabelFor(txt);
+        frame.getContentPane().add(lbl);
+        frame.getContentPane().add(txt, "growx, wrap");
+        return txt;
+    }
+
+    // Campo que solo se muestra: etiqueta y texto deshabilitados (en gris) y con aviso al pasar el raton
+    private JTextField addCampoNoEditable(String etiqueta, String nombre) {
+        String aviso = "El puesto de trabajo no se puede modificar";
+        JLabel lbl = new JLabel(etiqueta);
+        JTextField txt = new JTextField(20);
+        txt.setName(nombre);
+        lbl.setLabelFor(txt);
+        txt.setEnabled(false);
+        lbl.setEnabled(false);
+        txt.setToolTipText(aviso);
+        lbl.setToolTipText(aviso);
         frame.getContentPane().add(lbl);
         frame.getContentPane().add(txt, "growx, wrap");
         return txt;
