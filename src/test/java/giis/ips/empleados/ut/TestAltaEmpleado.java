@@ -150,7 +150,6 @@ class TestAltaEmpleado {
 			"Eva       | Ruiz | 55555555K | 600555555  | ''         | 20000    | El campo fecha de nacimiento es obligatorio",
 			"Eva       | Ruiz | 55555555K | 600555555  | 1990-01-15 | ''       | El campo salario bruto anual es obligatorio",
 			"Eva       | Ruiz | 5555555K  | 600555555  | 1990-01-15 | 20000    | El DNI debe tener 8 cifras y una letra",
-			"Eva       | Ruiz | 55555555A | 600555555  | 1990-01-15 | 20000    | La letra del DNI no es correcta",
 			"Eva       | Ruiz | 55555555K | 60055555   | 1990-01-15 | 20000    | El teléfono debe tener 9 cifras",
 			"Eva       | Ruiz | 55555555K | 6005a5555  | 1990-01-15 | 20000    | El teléfono debe tener 9 cifras",
 			"Eva       | Ruiz | 55555555K | 600555555  | 15/01/1990 | 20000    | La fecha de nacimiento debe ser una fecha válida con formato aaaa-mm-dd",
