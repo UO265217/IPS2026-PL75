@@ -50,7 +50,7 @@ public class AltaEmpleadoController {
 
 	public void guardar() {
 		EmpleadoEntity empleado = crearEmpleado(view.getTxtNombre().getText(), view.getTxtApellido().getText(),
-				view.getTxtDni().getText(), view.getTxtTelefono().getText(), view.getTxtFechaNacimiento().getText(),
+				view.getTxtDni().getText(), view.getTxtTelefono().getText(), SwingUtil.getIsoDate(view.getDcFechaNacimiento()),
 				(String) view.getCbTipo().getSelectedItem(), (String) view.getCbPosicion().getSelectedItem(),
 				view.getTxtSalario().getText());
 		model.altaEmpleado(empleado, LocalDate.now());
@@ -64,7 +64,7 @@ public class AltaEmpleadoController {
 		view.getTxtApellido().setText("");
 		view.getTxtDni().setText("");
 		view.getTxtTelefono().setText("");
-		view.getTxtFechaNacimiento().setText("");
+		view.getDcFechaNacimiento().setDate(null);
 		view.getTxtSalario().setText("");
 		view.getCbTipo().setSelectedIndex(0);
 	}

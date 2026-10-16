@@ -80,6 +80,13 @@
 			<version>3.7.4</version>
 		</dependency>
 		
+		<!-- selector de fechas (JDateChooser) -->
+		<dependency>
+			<groupId>com.toedter</groupId>
+			<artifactId>jcalendar</artifactId>
+			<version>1.4</version>
+		</dependency>
+
 		<!-- utilidades varias para manejo de objetos y json -->
 		<dependency>
 			<groupId>commons-dbutils</groupId>
