@@ -73,7 +73,7 @@ public class GestionEmpleadosController {
 		view.getTxtApellido().setText(hay ? e.getApellido() : "");
 		view.getTxtDni().setText(hay ? e.getDni() : "");
 		view.getTxtTelefono().setText(hay ? e.getTelefono() : "");
-		view.getTxtFechaNacimiento().setText(hay ? e.getFechaNacimiento() : "");
+		SwingUtil.setIsoDate(view.getDcFechaNacimiento(), hay ? e.getFechaNacimiento() : "");
 		view.getTxtSalario().setText(hay ? formatearSalario(e.getSalarioAnual()) : "");
 		view.getTxtTipo().setText(hay ? TipoEmpleado.valueOf(e.getTipo()).getNombre() : "");
 		view.getTxtPosicion().setText(hay ? Posicion.valueOf(e.getPosicion()).getNombre() : "");
@@ -86,7 +86,7 @@ public class GestionEmpleadosController {
 			throw new ApplicationException("Hay que seleccionar un empleado");
 		EmpleadoEntity empleado = crearEmpleadoModificado(seleccionado, view.getTxtNombre().getText(),
 				view.getTxtApellido().getText(), view.getTxtDni().getText(), view.getTxtTelefono().getText(),
-				view.getTxtFechaNacimiento().getText(), view.getTxtSalario().getText());
+				SwingUtil.getIsoDate(view.getDcFechaNacimiento()), view.getTxtSalario().getText());
 		model.modificarEmpleado(empleado, LocalDate.now());
 		JOptionPane.showMessageDialog(view.getFrame(), "Empleado " + empleado.getNombre() + " "
 				+ empleado.getApellido() + " modificado correctamente", "Modificar empleado",
