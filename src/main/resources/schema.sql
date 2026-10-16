@@ -1,3 +1,4 @@
+drop table if exists horario;
 drop table if exists empleado;
 create table empleado (
     id integer primary key autoincrement,
@@ -11,4 +12,15 @@ create table empleado (
     posicion varchar(40) not null,
     salarioAnual decimal(10,2) not null
                       check (salarioAnual > 0)
+);
+
+--Turnos del horario semanal por defecto de los empleados no deportivos.
+--Las horas son minutos desde las 00:00 (0..1440); diaSemana: 1=lunes ... 7=domingo
+create table horario (
+    id integer primary key autoincrement,
+    empleadoId integer not null references empleado(id),
+    diaSemana integer not null check (diaSemana between 1 and 7),
+    horaInicio integer not null,
+    horaFin integer not null,
+    check (horaInicio >= 0 and horaFin <= 1440 and horaInicio < horaFin)
 );
