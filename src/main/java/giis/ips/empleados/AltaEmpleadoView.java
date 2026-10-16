@@ -1,5 +1,6 @@
 package giis.ips.empleados;
 
+import com.toedter.calendar.JDateChooser;
 import lombok.Getter;
 import net.miginfocom.swing.MigLayout;
 
@@ -14,7 +15,7 @@ public class AltaEmpleadoView {
     private JTextField txtApellido;
     private JTextField txtDni;
     private JTextField txtTelefono;
-    private JTextField txtFechaNacimiento;
+    private JDateChooser dcFechaNacimiento;
     private JComboBox<String> cbTipo;
     private JComboBox<String> cbPosicion;
     private JTextField txtSalario;
@@ -38,7 +39,7 @@ public class AltaEmpleadoView {
         txtApellido = addCampo("Apellido:", "txtApellido");
         txtDni = addCampo("DNI:", "txtDni");
         txtTelefono = addCampo("Teléfono:", "txtTelefono");
-        txtFechaNacimiento = addCampo("Fecha de nacimiento (aaaa-mm-dd):", "txtFechaNacimiento");
+        dcFechaNacimiento = addFecha("Fecha de nacimiento:", "dcFechaNacimiento");
 
         frame.getContentPane().add(new JLabel("Tipo de empleado:"));
         cbTipo = new JComboBox<>();
@@ -59,6 +60,18 @@ public class AltaEmpleadoView {
         btnGuardar = new JButton("Guardar");
         btnGuardar.setName("btnGuardar");
         frame.getContentPane().add(btnGuardar);
+    }
+
+    // Mediante la etiqueta y el nombre crea el selector de fecha (se muestra como aaaa-mm-dd)
+    private JDateChooser addFecha(String etiqueta, String nombre) {
+        JLabel lbl = new JLabel(etiqueta);
+        JDateChooser dc = new JDateChooser();
+        dc.setDateFormatString("yyyy-MM-dd");
+        dc.setName(nombre);
+        lbl.setLabelFor(dc);
+        frame.getContentPane().add(lbl);
+        frame.getContentPane().add(dc, "growx, wrap");
+        return dc;
     }
 
     // Mediante la etiqueta y el nombre crea el txtField

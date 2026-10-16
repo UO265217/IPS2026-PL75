@@ -10,6 +10,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
+
+import com.toedter.calendar.JDateChooser;
 import org.apache.commons.beanutils.PropertyUtils;
 
 /**
@@ -148,5 +150,15 @@ public class SwingUtil {
 		}
 		return cm;
 	}	
+
+	/** Fecha del selector en formato iso (aaaa-mm-dd), o cadena vacia si no hay ninguna seleccionada */
+	public static String getIsoDate(JDateChooser chooser) {
+		return chooser.getDate() == null ? "" : Util.dateToIsoString(chooser.getDate());
+	}
+
+	/** Muestra en el selector la fecha iso (aaaa-mm-dd) indicada, o lo deja vacio si es cadena vacia */
+	public static void setIsoDate(JDateChooser chooser, String isoDate) {
+		chooser.setDate(isoDate.isEmpty() ? null : Util.isoStringToDate(isoDate));
+	}
 
 }

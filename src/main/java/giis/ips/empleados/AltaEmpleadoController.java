@@ -15,7 +15,6 @@ import giis.ips.util.SwingUtil;
  * realiza las validaciones sintacticas y llama al modelo.
  */
 public class AltaEmpleadoController {
-	private static final String LETRAS_DNI = "TRWAGMYFPDXBNJZSQVHLCKE";
 
 	private AltaEmpleadoModel model;
 	private AltaEmpleadoView view;
@@ -50,7 +49,7 @@ public class AltaEmpleadoController {
 
 	public void guardar() {
 		EmpleadoEntity empleado = crearEmpleado(view.getTxtNombre().getText(), view.getTxtApellido().getText(),
-				view.getTxtDni().getText(), view.getTxtTelefono().getText(), view.getTxtFechaNacimiento().getText(),
+				view.getTxtDni().getText(), view.getTxtTelefono().getText(), SwingUtil.getIsoDate(view.getDcFechaNacimiento()),
 				(String) view.getCbTipo().getSelectedItem(), (String) view.getCbPosicion().getSelectedItem(),
 				view.getTxtSalario().getText());
 		model.altaEmpleado(empleado, LocalDate.now());
@@ -64,7 +63,7 @@ public class AltaEmpleadoController {
 		view.getTxtApellido().setText("");
 		view.getTxtDni().setText("");
 		view.getTxtTelefono().setText("");
-		view.getTxtFechaNacimiento().setText("");
+		view.getDcFechaNacimiento().setDate(null);
 		view.getTxtSalario().setText("");
 		view.getCbTipo().setSelectedIndex(0);
 	}
@@ -97,14 +96,11 @@ public class AltaEmpleadoController {
 		return valor.trim();
 	}
 
-	/** DNI: 8 cifras y la letra de control correspondiente */
+	/** DNI: 8 cifras y una letra (no se comprueba que la letra sea la de control) */
 	private static String validarDni(String dni) {
 		String d = dni.toUpperCase();
 		if (!d.matches("\\d{8}[A-Z]"))
 			throw new ApplicationException("El DNI debe tener 8 cifras y una letra");
-		int numero = Integer.parseInt(d.substring(0, 8));
-		if (LETRAS_DNI.charAt(numero % 23) != d.charAt(8))
-			throw new ApplicationException("La letra del DNI no es correcta");
 		return d;
 	}
 
