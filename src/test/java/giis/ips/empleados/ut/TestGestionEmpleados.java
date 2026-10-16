@@ -32,7 +32,7 @@ class TestGestionEmpleados {
 	@BeforeEach
 	void setUp() {
 		db.createDatabase(false);
-		db.loadDatabase(); // 4 empleados de data.sql
+		db.loadDatabase(); // 8 empleados de data.sql
 		model = new GestionEmpleadosModel();
 	}
 
@@ -51,11 +51,11 @@ class TestGestionEmpleados {
 		return lista.get(0);
 	}
 
-	/** Comprueba el mensaje y que la BD no ha cambiado (Luis Perez sigue igual y siguen los 4 empleados) */
+	/** Comprueba el mensaje y que la BD no ha cambiado (Luis Perez sigue igual y siguen los 8 empleados) */
 	private void assertError(String mensaje, Runnable accion) {
 		ApplicationException ex = assertThrows(ApplicationException.class, accion::run);
 		assertEquals(mensaje, ex.getMessage());
-		assertEquals(4, model.getEmpleados().size(), "Si hay error no se debe borrar nada");
+		assertEquals(8, model.getEmpleados().size(), "Si hay error no se debe borrar nada");
 		EmpleadoEntity luis = buscar("22222222J");
 		assertEquals("Luis", luis.getNombre());
 		assertEquals(120000, luis.getSalarioAnual(), 0.001);
@@ -75,7 +75,7 @@ class TestGestionEmpleados {
 		// el puesto de trabajo no cambia
 		assertEquals("DEPORTIVO", e.getTipo());
 		assertEquals("JUGADOR", e.getPosicion());
-		assertEquals(4, model.getEmpleados().size());
+		assertEquals(8, model.getEmpleados().size());
 	}
 
 	@Test
@@ -172,7 +172,7 @@ class TestGestionEmpleados {
 		int id = buscar("22222222J").getId();
 		model.eliminarEmpleado(id);
 		List<EmpleadoEntity> empleados = model.getEmpleados();
-		assertEquals(3, empleados.size());
+		assertEquals(7, empleados.size());
 		assertTrue(empleados.stream().noneMatch(e -> e.getDni().equals("22222222J")));
 		assertTrue(db.executeQueryArray("select id from empleado where id = ?", id).isEmpty());
 	}

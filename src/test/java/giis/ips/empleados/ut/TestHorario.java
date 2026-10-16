@@ -183,19 +183,27 @@ class TestHorario {
 		assertEquals("No existe el turno seleccionado", ex.getMessage());
 	}
 
+	private int idDe(String dni) {
+		return (Integer) db.executeQueryArray("select id from empleado where dni = ?", dni).get(0)[0];
+	}
+
 	// ---- Lista de empleados y datos de ejemplo ----
 
 	@Test
 	void soloSeListanLosEmpleadosNoDeportivos() {
-		assertEquals(1, model.getEmpleadosNoDeportivos().size());
-		assertEquals("Ana", model.getEmpleadosNoDeportivos().get(0).getNombre());
+		assertEquals(5, model.getEmpleadosNoDeportivos().size());
+		assertEquals(true, model.getEmpleadosNoDeportivos().stream().allMatch(e -> e.getTipo().equals("NO_DEPORTIVO")));
 	}
 
 	@Test
 	void datosDeEjemploDeAna() {
 		db.createDatabase(false);
 		db.loadDatabase();
-		assertEquals(true, model.getHorarios(ANA).size() >= 1);
+		assertEquals(6, model.getHorarios(ANA).size());
+		assertEquals(10, model.getHorarios(idDe("66666666Z")).size());
+		assertEquals(7, model.getHorarios(idDe("77777777B")).size());
+		assertEquals(6, model.getHorarios(idDe("88888888Y")).size());
+		assertEquals(0, model.getHorarios(idDe("99999999R")).size());
 	}
 
 	// ---- Relacion con la HU 35202: al eliminar un empleado se eliminan sus horarios ----
