@@ -7,6 +7,9 @@ import giis.ips.empleados.AltaEmpleadoView;
 import giis.ips.empleados.GestionEmpleadosController;
 import giis.ips.empleados.GestionEmpleadosModel;
 import giis.ips.empleados.GestionEmpleadosView;
+import giis.ips.empleados.HorarioController;
+import giis.ips.empleados.HorarioModel;
+import giis.ips.empleados.HorarioView;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -55,7 +58,7 @@ public class SwingMain {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 220);
+		frame.setBounds(0, 0, 287, 250);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -99,6 +102,16 @@ public class SwingMain {
 			}
 		});
 		frame.getContentPane().add(btnGestionEmpleados);
+
+		JButton btnHorarios = new JButton("Horarios de empleados");
+		btnHorarios.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				HorarioController controller = new HorarioController(new HorarioModel(), new HorarioView());
+				controller.initController();
+			}
+		});
+		frame.getContentPane().add(btnHorarios);
 	}
 
 	public JFrame getFrame() { return this.frame; }

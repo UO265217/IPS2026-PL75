@@ -31,7 +31,7 @@ class TestAltaEmpleado {
 	@BeforeEach
 	void setUp() {
 		db.createDatabase(false);
-		db.loadDatabase(); // 4 empleados de data.sql
+		db.loadDatabase(); // 8 empleados de data.sql
 		model = new AltaEmpleadoModel();
 	}
 
@@ -53,7 +53,7 @@ class TestAltaEmpleado {
 	private void assertError(String mensaje, Runnable accion) {
 		ApplicationException ex = assertThrows(ApplicationException.class, accion::run);
 		assertEquals(mensaje, ex.getMessage());
-		assertEquals(4, model.getEmpleados().size(), "Si hay error no se debe guardar nada");
+		assertEquals(8, model.getEmpleados().size(), "Si hay error no se debe guardar nada");
 	}
 
 	// ---- Altas validas ----
@@ -70,7 +70,7 @@ class TestAltaEmpleado {
 		assertEquals("NO_DEPORTIVO", e.getTipo());
 		assertEquals("VENDEDOR_ENTRADAS", e.getPosicion());
 		assertEquals(24000.50, e.getSalarioAnual(), 0.001);
-		assertEquals(5, model.getEmpleados().size());
+		assertEquals(9, model.getEmpleados().size());
 	}
 
 	@Test

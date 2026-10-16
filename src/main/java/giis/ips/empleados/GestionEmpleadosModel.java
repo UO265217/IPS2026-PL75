@@ -59,6 +59,7 @@ public class GestionEmpleadosModel {
 	/** Elimina del sistema al empleado con el id indicado */
 	public void eliminarEmpleado(int id) {
 		getEmpleado(id); // comprueba que existe
+		db.executeUpdate("delete from horario where empleadoId = ?", id); // sus turnos (HU 35203)
 		db.executeUpdate("delete from empleado where id = ?", id);
 	}
 
