@@ -156,7 +156,7 @@ class TestGestionEmpleados {
 	@ParameterizedTest
 	@CsvSource(delimiter = '|', value = {
 			"''   | Pérez | 22222222J | 600222222 | 1995-03-14 | 120000 | El campo nombre es obligatorio",
-			"Luis | Pérez | 22222222A | 600222222 | 1995-03-14 | 120000 | La letra del DNI no es correcta",
+			"Luis | Pérez | 2222222J  | 600222222 | 1995-03-14 | 120000 | El DNI debe tener 8 cifras y una letra",
 			"Luis | Pérez | 22222222J | 60022222  | 1995-03-14 | 120000 | El teléfono debe tener 9 cifras",
 			"Luis | Pérez | 22222222J | 600222222 | 14/03/1995 | 120000 | La fecha de nacimiento debe ser una fecha válida con formato aaaa-mm-dd",
 			"Luis | Pérez | 22222222J | 600222222 | 1995-03-14 | abc    | El salario bruto anual debe ser un número" })
