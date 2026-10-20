@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 
@@ -18,7 +20,6 @@ import giis.ips.util.SwingUtil;
  */
 public class HorarioController {
 	private static final String[] COLUMNAS_EMPLEADOS = { "Id", "Apellido", "Nombre", "Posición" };
-	private static final String[] COLUMNAS_TURNOS = { "Id", "Día", "Inicio", "Fin", "Horas" };
 	private static final Pattern HORA = Pattern.compile("(\\d{2}):(\\d{2})");
 
 	private HorarioModel model;
@@ -56,7 +57,13 @@ public class HorarioController {
 			tm.addRow(new Object[] { String.valueOf(e.getId()), e.getApellido(), e.getNombre(),
 					Posicion.valueOf(e.getPosicion()).getNombre() });
 		view.getTabEmpleados().setModel(tm);
-		SwingUtil.autoAdjustColumns(view.getTabEmpleados());
+		ocultarId(view.getTabEmpleados());
+	}
+
+	/** Quita de la vista la columna del id (sigue en el modelo como clave) y reparte el ancho entre las demas */
+	private static void ocultarId(JTable tabla) {
+		tabla.removeColumn(tabla.getColumnModel().getColumn(0));
+		tabla.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 	}
 
 	public void seleccionarEmpleado() {
@@ -72,17 +79,12 @@ public class HorarioController {
 	private void mostrarHorario(EmpleadoEntity e) {
 		seleccionado = e;
 		boolean hay = e != null;
-		DefaultTableModel tm = new DefaultTableModel(COLUMNAS_TURNOS, 0);
+		List<HorarioEntity> turnos = hay ? model.getHorarios(e.getId()) : null;
 		int totalMinutos = 0;
 		if (hay)
-			for (HorarioEntity h : model.getHorarios(e.getId())) {
-				int duracion = h.getHoraFin() - h.getHoraInicio();
-				totalMinutos += duracion;
-				tm.addRow(new Object[] { String.valueOf(h.getId()), DiaSemana.fromNumero(h.getDiaSemana()).getNombre(),
-						formatearHora(h.getHoraInicio()), formatearHora(h.getHoraFin()), formatearHora(duracion) });
-			}
-		view.getTabTurnos().setModel(tm);
-		SwingUtil.autoAdjustColumns(view.getTabTurnos());
+			for (HorarioEntity h : turnos)
+				totalMinutos += h.getHoraFin() - h.getHoraInicio();
+		view.getPanelHorario().setTurnos(turnos);
 		view.getLblTotal().setText(hay ? "Total semanal: " + formatearHora(totalMinutos) + " de 40:00 horas" : " ");
 		view.getBtnAnyadir().setEnabled(hay);
 		view.getBtnEliminar().setEnabled(hay);
@@ -92,22 +94,25 @@ public class HorarioController {
 		if (seleccionado == null)
 			throw new ApplicationException("Hay que seleccionar un empleado");
 		HorarioEntity turno = crearTurno(seleccionado.getId(), (String) view.getCbDia().getSelectedItem(),
-				view.getTxtInicio().getText(), view.getTxtFin().getText());
+				leerHora(view.getSpHoraInicio(), view.getSpMinInicio()), leerHora(view.getSpHoraFin(), view.getSpMinFin()));
 		model.anyadirTurno(turno);
-		view.getTxtInicio().setText("");
-		view.getTxtFin().setText("");
 		mostrarHorario(seleccionado);
 	}
 
+	/** Hora de los spinners en formato HH:mm, para validarla igual que el resto de horas */
+	private static String leerHora(JSpinner spHora, JSpinner spMin) {
+		return formatearHora((Integer) spHora.getValue() * 60 + (Integer) spMin.getValue());
+	}
+
 	public void eliminar() {
-		String key = SwingUtil.getSelectedKey(view.getTabTurnos());
-		if (seleccionado == null || key.isEmpty())
-			throw new ApplicationException("Hay que seleccionar un turno");
+		HorarioEntity turno = view.getPanelHorario().getSeleccionado();
+		if (seleccionado == null || turno == null)
+			throw new ApplicationException("Hay que seleccionar un turno pulsando sobre él en el horario");
 		int respuesta = JOptionPane.showConfirmDialog(view.getFrame(), "¿Seguro que quieres eliminar el turno?",
 				"Eliminar turno", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 		if (respuesta != JOptionPane.YES_OPTION)
 			return;
-		model.eliminarTurno(Integer.parseInt(key));
+		model.eliminarTurno(turno.getId());
 		mostrarHorario(seleccionado);
 	}
 
