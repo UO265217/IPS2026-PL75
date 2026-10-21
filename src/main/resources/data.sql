@@ -1,4 +1,5 @@
 --Datos para carga inicial de la base de datos (pruebas)
+delete from horario_especifico;
 delete from horario;
 delete from empleado;
 insert into empleado(nombre, apellido, dni, telefono, fechaNacimiento, tipo, posicion, salarioAnual) values
@@ -42,3 +43,22 @@ insert into horario(empleadoId, diaSemana, horaInicio, horaFin)
     where dni = '88888888Y';
 
 --Sara (director de comunicaciones): sin horario, para ver una lista vacia
+
+--Horarios de dia especifico de ejemplo (HU 35204, sin implementar). Cumplen sus reglas: el empleado tiene horario
+--periodico y no se superan 8 h diarias ni 40 h semanales contando la semana con el dia ya sustituido
+--Semana del 19 al 25 de octubre de 2026:
+--Ana: el martes 20 trabaja de 10:00 a 18:00 en vez de 9:00 a 14:00 (la semana pasa de 27 h a 30 h)
+insert into horario_especifico(empleadoId, fecha, horaInicio, horaFin)
+    select id, '2026-10-20', 600, 1080 from empleado where dni = '11111111H';
+--Carlos: el miercoles 21 un unico turno de 8:00 a 16:00 en vez del turno partido (sigue en 40 h)
+insert into horario_especifico(empleadoId, fecha, horaInicio, horaFin)
+    select id, '2026-10-21', 480, 960 from empleado where dni = '66666666Z';
+--Pedro: el domingo 25, que no trabaja en su horario periodico, de 8:00 a 12:00 (llega justo a 40 h)
+insert into horario_especifico(empleadoId, fecha, horaInicio, horaFin)
+    select id, '2026-10-25', 480, 720 from empleado where dni = '88888888Y';
+--Semana del 26 de octubre al 1 de noviembre de 2026:
+--Lucia: el jueves 29 dos turnos, 9:00-12:00 y 13:00-15:00, en vez de 10:00-14:00 y 17:00-21:00 (pasa de 28 h a 25 h)
+insert into horario_especifico(empleadoId, fecha, horaInicio, horaFin)
+    select id, '2026-10-29', 540, 720 from empleado where dni = '77777777B';
+insert into horario_especifico(empleadoId, fecha, horaInicio, horaFin)
+    select id, '2026-10-29', 780, 900 from empleado where dni = '77777777B';

@@ -9,6 +9,8 @@ import giis.ips.empleados.GestionEmpleadosModel;
 import giis.ips.empleados.GestionEmpleadosView;
 import giis.ips.empleados.HorarioController;
 import giis.ips.empleados.HorarioModel;
+import giis.ips.empleados.HorarioSemanaController;
+import giis.ips.empleados.HorarioSemanaView;
 import giis.ips.empleados.HorarioView;
 
 import java.awt.EventQueue;
@@ -58,7 +60,7 @@ public class SwingMain {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 250);
+		frame.setBounds(0, 0, 287, 280);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -112,6 +114,16 @@ public class SwingMain {
 			}
 		});
 		frame.getContentPane().add(btnHorarios);
+
+		JButton btnHorarioSemana = new JButton("Ver mi horario semanal");
+		btnHorarioSemana.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				HorarioSemanaController controller = new HorarioSemanaController(new HorarioModel(), new HorarioSemanaView());
+				controller.initController();
+			}
+		});
+		frame.getContentPane().add(btnHorarioSemana);
 	}
 
 	public JFrame getFrame() { return this.frame; }

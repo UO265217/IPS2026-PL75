@@ -12,6 +12,8 @@ import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,8 @@ import javax.swing.Scrollable;
 /**
  * Rejilla semanal al estilo del SIES: una columna por dia, filas de media hora y cada turno dibujado
  * como un bloque que ocupa su franja. Pulsando sobre un bloque se selecciona el turno.
+ * Si se indica el lunes de una semana concreta, la cabecera muestra tambien la fecha de cada dia
+ * y los turnos de dia especifico se dibujan en otro color.
  */
 public class HorarioSemanalPanel extends JPanel implements Scrollable {
 	private static final long serialVersionUID = 1L;
@@ -41,10 +45,14 @@ public class HorarioSemanalPanel extends JPanel implements Scrollable {
 	private static final Color AZUL_HORA = new Color(0x1A, 0x1A, 0x8C);
 	private static final Color FONDO_TURNO = new Color(0xC8, 0xE9, 0xFA);
 	private static final Color CABECERA_TURNO = new Color(0xAF, 0xE0, 0xF7);
+	private static final Color FONDO_ESPECIFICO = new Color(0xFD, 0xE3, 0xC4);
+	private static final Color CABECERA_ESPECIFICO = new Color(0xFB, 0xCB, 0x96);
+	private static final DateTimeFormatter DIA_MES = DateTimeFormatter.ofPattern("dd/MM");
 	private static final Color BORDE_SELECCION = new Color(0x1E, 0x64, 0xC8);
 
 	private List<HorarioEntity> turnos = new ArrayList<>();
 	private HorarioEntity seleccionado; // turno pulsado o null si no hay ninguno
+	private LocalDate lunes; // lunes de la semana mostrada o null si es el horario semanal por defecto
 	private final int desde = HORA_DESDE;
 	private final int hasta = HORA_HASTA;
 
@@ -67,6 +75,12 @@ public class HorarioSemanalPanel extends JPanel implements Scrollable {
 	public void setTurnos(List<HorarioEntity> turnos) {
 		this.turnos = turnos == null ? new ArrayList<>() : turnos;
 		seleccionado = null;
+		repaint();
+	}
+
+	/** Lunes de la semana cuyas fechas se muestran en la cabecera, o null para mostrar solo los dias */
+	public void setLunes(LocalDate lunes) {
+		this.lunes = lunes;
 		repaint();
 	}
 
@@ -172,7 +186,8 @@ public class HorarioSemanalPanel extends JPanel implements Scrollable {
 			g.drawLine(x(col), 0, x(col), fondo);
 			g.setColor(col >= 5 ? TEXTO_FINDE : TEXTO_DIA);
 			int centro = (x(col) + x(col + 1)) / 2;
-			g.drawString(DIAS[col], centro - fm.stringWidth(DIAS[col]) / 2, (ALTO_CABECERA + fm.getAscent()) / 2 - 1);
+			String dia = lunes == null ? DIAS[col] : DIAS[col] + " " + lunes.plusDays(col).format(DIA_MES);
+			g.drawString(dia, centro - fm.stringWidth(dia) / 2, (ALTO_CABECERA + fm.getAscent()) / 2 - 1);
 		}
 		g.setColor(LINEA_HORA);
 		g.drawLine(getWidth() - 1, 0, getWidth() - 1, fondo);
@@ -187,14 +202,14 @@ public class HorarioSemanalPanel extends JPanel implements Scrollable {
 		Rectangle r = getRectangulo(h);
 		Graphics2D gt = (Graphics2D) g.create();
 		gt.clipRect(r.x, r.y, r.width, r.height);
-		gt.setColor(FONDO_TURNO);
+		gt.setColor(h.isEspecifico() ? FONDO_ESPECIFICO : FONDO_TURNO);
 		gt.fill(r);
 
 		Font fPeq = getFont().deriveFont(getFont().getSize2D() - 1);
 		gt.setFont(fPeq);
 		FontMetrics fm = gt.getFontMetrics();
 		int linea = fm.getHeight();
-		gt.setColor(CABECERA_TURNO);
+		gt.setColor(h.isEspecifico() ? CABECERA_ESPECIFICO : CABECERA_TURNO);
 		gt.fillRect(r.x, r.y, r.width, linea * 2 + 4);
 
 		gt.setColor(AZUL_HORA);
