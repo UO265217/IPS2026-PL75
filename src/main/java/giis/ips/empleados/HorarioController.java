@@ -133,7 +133,7 @@ public class HorarioController {
 	}
 
 	/** Convierte HH:mm (00:00 a 24:00) en minutos desde las 00:00 */
-	private static int parsearHora(String texto, String mensajeVacio) {
+	static int parsearHora(String texto, String mensajeVacio) {
 		if (texto == null || texto.trim().isEmpty())
 			throw new ApplicationException(mensajeVacio);
 		Matcher m = HORA.matcher(texto.trim());
@@ -148,7 +148,7 @@ public class HorarioController {
 	}
 
 	/** Minutos desde las 00:00 (o duracion) en formato HH:mm */
-	private static String formatearHora(int minutos) {
+	static String formatearHora(int minutos) {
 		return String.format("%02d:%02d", minutos / 60, minutos % 60);
 	}
 }

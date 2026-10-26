@@ -27,7 +27,6 @@ create table horario (
 );
 
 --Turnos de un horario de dia especifico (HU 35204): sobrescriben en su totalidad el horario periodico de esa fecha.
---La HU 35204 no esta implementada: de momento solo se cargan datos de prueba desde data.sql
 create table horario_especifico (
     id integer primary key autoincrement,
     empleadoId integer not null references empleado(id),

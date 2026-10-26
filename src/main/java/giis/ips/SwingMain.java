@@ -8,6 +8,8 @@ import giis.ips.empleados.GestionEmpleadosController;
 import giis.ips.empleados.GestionEmpleadosModel;
 import giis.ips.empleados.GestionEmpleadosView;
 import giis.ips.empleados.HorarioController;
+import giis.ips.empleados.HorarioEspecificoController;
+import giis.ips.empleados.HorarioEspecificoView;
 import giis.ips.empleados.HorarioModel;
 import giis.ips.empleados.HorarioSemanaController;
 import giis.ips.empleados.HorarioSemanaView;
@@ -60,7 +62,7 @@ public class SwingMain {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 280);
+		frame.setBounds(0, 0, 287, 310);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -114,6 +116,16 @@ public class SwingMain {
 			}
 		});
 		frame.getContentPane().add(btnHorarios);
+
+		JButton btnHorarioEspecifico = new JButton("Horarios de día específico");
+		btnHorarioEspecifico.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				HorarioEspecificoController controller = new HorarioEspecificoController(new HorarioModel(), new HorarioEspecificoView());
+				controller.initController();
+			}
+		});
+		frame.getContentPane().add(btnHorarioEspecifico);
 
 		JButton btnHorarioSemana = new JButton("Ver mi horario semanal");
 		btnHorarioSemana.addActionListener(new ActionListener() {

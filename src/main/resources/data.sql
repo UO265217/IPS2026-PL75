@@ -44,7 +44,7 @@ insert into horario(empleadoId, diaSemana, horaInicio, horaFin)
 
 --Sara (director de comunicaciones): sin horario, para ver una lista vacia
 
---Horarios de dia especifico de ejemplo (HU 35204, sin implementar). Cumplen sus reglas: el empleado tiene horario
+--Horarios de dia especifico de ejemplo (HU 35204). Cumplen sus reglas: el empleado tiene horario
 --periodico y no se superan 8 h diarias ni 40 h semanales contando la semana con el dia ya sustituido
 --Semana del 19 al 25 de octubre de 2026:
 --Ana: el martes 20 trabaja de 10:00 a 18:00 en vez de 9:00 a 14:00 (la semana pasa de 27 h a 30 h)

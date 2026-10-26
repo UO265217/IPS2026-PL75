@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import javax.swing.Scrollable;
  * Rejilla semanal al estilo del SIES: una columna por dia, filas de media hora y cada turno dibujado
  * como un bloque que ocupa su franja. Pulsando sobre un bloque se selecciona el turno.
  * Si se indica el lunes de una semana concreta, la cabecera muestra tambien la fecha de cada dia
- * y los turnos de dia especifico se dibujan en otro color.
+ * y los turnos de dia especifico se dibujan en otro color; tambien se puede resaltar uno de los dias.
  */
 public class HorarioSemanalPanel extends JPanel implements Scrollable {
 	private static final long serialVersionUID = 1L;
@@ -49,10 +50,13 @@ public class HorarioSemanalPanel extends JPanel implements Scrollable {
 	private static final Color CABECERA_ESPECIFICO = new Color(0xFB, 0xCB, 0x96);
 	private static final DateTimeFormatter DIA_MES = DateTimeFormatter.ofPattern("dd/MM");
 	private static final Color BORDE_SELECCION = new Color(0x1E, 0x64, 0xC8);
+	private static final Color FONDO_MARCADO = new Color(0xFF, 0xF6, 0xE0);
+	private static final Color CABECERA_MARCADO = new Color(0xFB, 0xCB, 0x96);
 
 	private List<HorarioEntity> turnos = new ArrayList<>();
 	private HorarioEntity seleccionado; // turno pulsado o null si no hay ninguno
 	private LocalDate lunes; // lunes de la semana mostrada o null si es el horario semanal por defecto
+	private LocalDate marcado; // dia de la semana que se resalta o null si no se resalta ninguno
 	private final int desde = HORA_DESDE;
 	private final int hasta = HORA_HASTA;
 
@@ -81,6 +85,12 @@ public class HorarioSemanalPanel extends JPanel implements Scrollable {
 	/** Lunes de la semana cuyas fechas se muestran en la cabecera, o null para mostrar solo los dias */
 	public void setLunes(LocalDate lunes) {
 		this.lunes = lunes;
+		repaint();
+	}
+
+	/** Dia de la semana mostrada que se resalta (el que se esta editando), o null para no resaltar ninguno */
+	public void setMarcado(LocalDate marcado) {
+		this.marcado = marcado;
 		repaint();
 	}
 
@@ -157,6 +167,15 @@ public class HorarioSemanalPanel extends JPanel implements Scrollable {
 		g.setColor(GRIS_CABECERA);
 		g.fillRect(0, 0, ANCHO_HORAS, getHeight());
 		g.fillRect(0, 0, getWidth(), ALTO_CABECERA);
+
+		// Dia resaltado: fondo de la columna y cabecera en otro color
+		int colMarcada = lunes == null || marcado == null ? -1 : (int) ChronoUnit.DAYS.between(lunes, marcado);
+		if (colMarcada >= 0 && colMarcada < 7) {
+			g.setColor(FONDO_MARCADO);
+			g.fillRect(x(colMarcada), ALTO_CABECERA, x(colMarcada + 1) - x(colMarcada), fondo - ALTO_CABECERA);
+			g.setColor(CABECERA_MARCADO);
+			g.fillRect(x(colMarcada), 0, x(colMarcada + 1) - x(colMarcada), ALTO_CABECERA);
+		}
 
 		// Lineas horizontales: continua en cada hora y punteada en cada media hora
 		Stroke continua = g.getStroke();
