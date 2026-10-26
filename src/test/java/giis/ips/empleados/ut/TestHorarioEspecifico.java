@@ -12,7 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import giis.ips.empleados.HorarioEntity;
-import giis.ips.empleados.HorarioEspecificoController;
+import giis.ips.empleados.HorarioController;
 import giis.ips.empleados.HorarioEspecificoEntity;
 import giis.ips.empleados.HorarioModel;
 import giis.ips.util.ApplicationException;
@@ -53,7 +53,7 @@ class TestHorarioEspecifico {
 
 	/** Ejecuta el flujo completo con los datos tal y como se escribirian en el formulario */
 	private void anyadir(String dni, String fecha, String inicio, String fin) {
-		model.anyadirTurnoEspecifico(HorarioEspecificoController.crearTurno(idDe(dni), fecha, inicio, fin));
+		model.anyadirTurnoEspecifico(HorarioController.crearTurnoEspecifico(idDe(dni), fecha, inicio, fin));
 	}
 
 	private int contarEspecificos() {
@@ -264,7 +264,7 @@ class TestHorarioEspecifico {
 	@Test
 	void empleadoInexistente() {
 		assertError("No existe el empleado seleccionado", () -> model.anyadirTurnoEspecifico(
-				HorarioEspecificoController.crearTurno(999, MARTES_3_NOV, "09:00", "13:00")));
+				HorarioController.crearTurnoEspecifico(999, MARTES_3_NOV, "09:00", "13:00")));
 	}
 
 	@ParameterizedTest
