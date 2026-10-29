@@ -1,4 +1,9 @@
 --Datos para carga inicial de la base de datos (pruebas)
+delete from reserva;
+delete from partido;
+delete from entrenamiento;
+delete from equipo;
+delete from instalacion;
 delete from horario_especifico;
 delete from horario;
 delete from empleado;
@@ -62,3 +67,34 @@ insert into horario_especifico(empleadoId, fecha, horaInicio, horaFin)
     select id, '2026-10-29', 540, 720 from empleado where dni = '77777777B';
 insert into horario_especifico(empleadoId, fecha, horaInicio, horaFin)
     select id, '2026-10-29', 780, 900 from empleado where dni = '77777777B';
+
+--Instalaciones, equipos y usos de las instalaciones por los equipos (HU 35206)
+insert into instalacion(nombre) values ('Estadio'), ('Campo de entrenamiento 1'), ('Pabellón');
+insert into equipo(nombre) values ('Primer equipo'), ('Juvenil A');
+
+--Campo de entrenamiento 1, lunes 2 de noviembre de 2026: entrenamiento del juvenil de 10:00 a 12:00 (no se
+--puede reservar hasta las 13:30) y una reserva externa de 18:00 a 19:30. Quedan libres 8:00-10:00, 13:30-18:00
+--y 19:30-22:00. El martes 3 esta libre todo el dia
+insert into entrenamiento(equipoId, instalacionId, fecha, horaInicio, horaFin)
+    select e.id, i.id, '2026-11-02', 600, 720 from equipo e, instalacion i
+    where e.nombre = 'Juvenil A' and i.nombre = 'Campo de entrenamiento 1';
+insert into reserva(instalacionId, fecha, horaInicio, horaFin, nombreUsuario, numeroTarjeta, importe)
+    select id, '2026-11-02', 1080, 1170, 'Club de pádel Oviedo', '4111111111111111', 100 from instalacion
+    where nombre = 'Campo de entrenamiento 1';
+--Miercoles 4: entrenamiento de 7:00 a 9:00, antes de abrir a usuarios externos; libre desde las 10:30
+insert into entrenamiento(equipoId, instalacionId, fecha, horaInicio, horaFin)
+    select e.id, i.id, '2026-11-04', 420, 540 from equipo e, instalacion i
+    where e.nombre = 'Primer equipo' and i.nombre = 'Campo de entrenamiento 1';
+--Jueves 5: entrenamientos de 8:00 a 9:00 y de 11:15 a 12:00; el hueco de 10:30 a 11:15 dura menos de 1 hora
+--y no cuenta como franja libre, que es de 13:30 a 22:00
+insert into entrenamiento(equipoId, instalacionId, fecha, horaInicio, horaFin)
+    select e.id, i.id, '2026-11-05', 480, 540 from equipo e, instalacion i
+    where e.nombre = 'Juvenil A' and i.nombre = 'Campo de entrenamiento 1';
+insert into entrenamiento(equipoId, instalacionId, fecha, horaInicio, horaFin)
+    select e.id, i.id, '2026-11-05', 675, 720 from equipo e, instalacion i
+    where e.nombre = 'Juvenil A' and i.nombre = 'Campo de entrenamiento 1';
+
+--Estadio, domingo 8 de noviembre de 2026: partido del primer equipo de 17:00 a 19:00; libres 8:00-17:00 y 20:30-22:00
+insert into partido(equipoId, instalacionId, fecha, horaInicio, horaFin)
+    select e.id, i.id, '2026-11-08', 1020, 1140 from equipo e, instalacion i
+    where e.nombre = 'Primer equipo' and i.nombre = 'Estadio';
