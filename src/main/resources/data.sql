@@ -79,7 +79,7 @@ insert into entrenamiento(equipoId, instalacionId, fecha, horaInicio, horaFin)
     select e.id, i.id, '2026-11-02', 600, 720 from equipo e, instalacion i
     where e.nombre = 'Juvenil A' and i.nombre = 'Campo de entrenamiento 1';
 insert into reserva(instalacionId, fecha, horaInicio, horaFin, nombreUsuario, numeroTarjeta, importe)
-    select id, '2026-11-02', 1080, 1170, 'Club de pádel Oviedo', '4111111111111111', 100 from instalacion
+    select id, '2026-11-02', 1080, 1170, 'Club de pádel Oviedo', '4111111111111111', 75 from instalacion
     where nombre = 'Campo de entrenamiento 1';
 --Miercoles 4: entrenamiento de 7:00 a 9:00, antes de abrir a usuarios externos; libre desde las 10:30
 insert into entrenamiento(equipoId, instalacionId, fecha, horaInicio, horaFin)

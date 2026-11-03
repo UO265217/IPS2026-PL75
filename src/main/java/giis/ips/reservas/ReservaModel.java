@@ -13,7 +13,7 @@ import giis.ips.util.Database;
  * Las reservas van de las 8:00 a las 22:00, duran al menos 1 hora y pueden empezar en cualquier minuto.
  * No pueden coincidir con el uso de la instalacion por un equipo (entrenamientos y partidos) ni empezar antes
  * de que pase hora y media desde el final de ese uso, ni coincidir con otra reserva externa.
- * Se cobran 50 euros por cada hora empezada.
+ * Se cobra en proporcion al tiempo reservado: 50 euros la hora (1 h 30 min son 75 euros).
  */
 public class ReservaModel {
 	public static final int APERTURA = 8 * 60;
@@ -47,7 +47,7 @@ public class ReservaModel {
 	}
 
 	/** Usos de la instalacion por los equipos (entrenamientos y partidos) en la fecha indicada, sin el margen */
-	private List<FranjaDTO> getUsosEquipos(int instalacionId, LocalDate fecha) {
+	public List<FranjaDTO> getUsosEquipos(int instalacionId, LocalDate fecha) {
 		String sql = "select horaInicio, horaFin from entrenamiento where instalacionId = ? and fecha = ?"
 				+ " union all select horaInicio, horaFin from partido where instalacionId = ? and fecha = ?";
 		return db.executeQueryPojo(FranjaDTO.class, sql, instalacionId, fecha.toString(), instalacionId,
@@ -81,10 +81,12 @@ public class ReservaModel {
 		return libres;
 	}
 
-	/** Importe de una reserva: 50 euros por cada hora empezada (1 h 30 min se cobra como 2 h) */
+	/**
+	 * Importe de una reserva en proporcion a su duracion: 50 euros la hora (1 h 30 min son 75 euros),
+	 * redondeado a centimos
+	 */
 	public static double calcularImporte(int horaInicio, int horaFin) {
-		int horas = (horaFin - horaInicio + 59) / 60;
-		return (double) horas * PRECIO_HORA;
+		return Math.round((horaFin - horaInicio) * PRECIO_HORA * 100.0 / 60) / 100.0;
 	}
 
 	/**

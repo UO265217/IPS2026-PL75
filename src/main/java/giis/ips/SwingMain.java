@@ -12,6 +12,9 @@ import giis.ips.empleados.HorarioModel;
 import giis.ips.empleados.HorarioSemanaController;
 import giis.ips.empleados.HorarioSemanaView;
 import giis.ips.empleados.HorarioView;
+import giis.ips.reservas.ReservaController;
+import giis.ips.reservas.ReservaModel;
+import giis.ips.reservas.ReservaView;
 
 import java.awt.EventQueue;
 import javax.swing.JFrame;
@@ -124,6 +127,16 @@ public class SwingMain {
 			}
 		});
 		frame.getContentPane().add(btnHorarioSemana);
+
+		JButton btnReservas = new JButton("Reservar instalación (usuario externo)");
+		btnReservas.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ReservaController controller = new ReservaController(new ReservaModel(), new ReservaView());
+				controller.initController();
+			}
+		});
+		frame.getContentPane().add(btnReservas);
 	}
 
 	public JFrame getFrame() { return this.frame; }

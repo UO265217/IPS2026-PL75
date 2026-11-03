@@ -196,12 +196,12 @@ class TestReserva {
 		assertEquals(1, model.getReservas(idDe(CAMPO), HOY).size());
 	}
 
-	// ---- Importe: 50 euros por hora empezada ----
+	// ---- Importe: 50 euros la hora, en proporcion al tiempo reservado ----
 
 	@ParameterizedTest
-	@CsvSource({ "480, 540, 50", "480, 541, 100", "480, 570, 100", "480, 600, 100", "480, 601, 150",
-			"480, 1320, 700" })
-	void importePorHoraEmpezada(int horaInicio, int horaFin, double importe) {
+	@CsvSource({ "480, 540, 50", "480, 541, 50.83", "480, 570, 75", "480, 580, 83.33", "480, 600, 100",
+			"480, 615, 112.5", "480, 1320, 700" })
+	void importeProporcionalAlTiempo(int horaInicio, int horaFin, double importe) {
 		assertEquals(importe, ReservaModel.calcularImporte(horaInicio, horaFin));
 	}
 
