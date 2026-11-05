@@ -1,4 +1,5 @@
 --Datos para carga inicial de la base de datos (pruebas)
+delete from labor_jardineria;
 delete from reserva;
 delete from partido;
 delete from entrenamiento;
@@ -98,3 +99,13 @@ insert into entrenamiento(equipoId, instalacionId, fecha, horaInicio, horaFin)
 insert into partido(equipoId, instalacionId, fecha, horaInicio, horaFin)
     select e.id, i.id, '2026-11-08', 1020, 1140 from equipo e, instalacion i
     where e.nombre = 'Primer equipo' and i.nombre = 'Estadio';
+
+--Labores de jardineria de ejemplo (HU 36125 y 36124): Pedro trabaja de lunes a sabado de 7:00 a 13:00
+--Campo de entrenamiento 1, lunes 2 de noviembre de 2026: cortar el cesped de 8:00 a 9:00
+insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, horaInicio, horaFin)
+    select i.id, e.id, 'Cortar el césped', '2026-11-02', 480, 540 from instalacion i, empleado e
+    where i.nombre = 'Campo de entrenamiento 1' and e.dni = '88888888Y';
+--Estadio, martes 3 de noviembre de 2026: revisar el riego de 9:00 a 11:00
+insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, horaInicio, horaFin)
+    select i.id, e.id, 'Revisar el riego', '2026-11-03', 540, 660 from instalacion i, empleado e
+    where i.nombre = 'Estadio' and e.dni = '88888888Y';

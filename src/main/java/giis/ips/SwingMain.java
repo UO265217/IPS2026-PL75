@@ -12,6 +12,9 @@ import giis.ips.empleados.HorarioModel;
 import giis.ips.empleados.HorarioSemanaController;
 import giis.ips.empleados.HorarioSemanaView;
 import giis.ips.empleados.HorarioView;
+import giis.ips.entrenamientos.EntrenamientoController;
+import giis.ips.entrenamientos.EntrenamientoModel;
+import giis.ips.entrenamientos.EntrenamientoView;
 import giis.ips.reservas.ReservaController;
 import giis.ips.reservas.ReservaModel;
 import giis.ips.reservas.ReservaView;
@@ -63,7 +66,7 @@ public class SwingMain {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 280);
+		frame.setBounds(0, 0, 287, 310);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -137,6 +140,16 @@ public class SwingMain {
 			}
 		});
 		frame.getContentPane().add(btnReservas);
+
+		JButton btnEntrenamientos = new JButton("Asignar entrenamiento a instalación");
+		btnEntrenamientos.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				EntrenamientoController controller = new EntrenamientoController(new EntrenamientoModel(), new EntrenamientoView());
+				controller.initController();
+			}
+		});
+		frame.getContentPane().add(btnEntrenamientos);
 	}
 
 	public JFrame getFrame() { return this.frame; }

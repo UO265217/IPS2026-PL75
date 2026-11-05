@@ -1,3 +1,4 @@
+drop table if exists labor_jardineria;
 drop table if exists reserva;
 drop table if exists partido;
 drop table if exists entrenamiento;
@@ -85,4 +86,17 @@ create table reserva (
     importe decimal(10,2) not null
                       check (importe > 0),
     check (horaInicio >= 480 and horaFin <= 1320 and horaFin - horaInicio >= 60)
+);
+
+--Labores de jardineria programadas en las instalaciones (HU 36125). Los entrenamientos tienen prioridad sobre
+--ellas: al asignar un entrenamiento que coincide con una labor, aunque sea en parte, la labor se elimina (HU 36124)
+create table labor_jardineria (
+    id integer primary key autoincrement,
+    instalacionId integer not null references instalacion(id),
+    empleadoId integer not null references empleado(id),
+    descripcion varchar(200) not null,
+    fecha date not null,
+    horaInicio integer not null,
+    horaFin integer not null,
+    check (horaInicio >= 0 and horaFin <= 1440 and horaInicio < horaFin)
 );
