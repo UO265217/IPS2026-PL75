@@ -14,6 +14,7 @@ public class ReservaView {
     private JComboBox<String> cbInstalacion;
     private JDateChooser dcFecha;
     private DisponibilidadPanel panelDisponibilidad;
+    private JLabel lblEstado;
     private JSpinner spHoraInicio;
     private JSpinner spMinInicio;
     private JSpinner spHoraFin;
@@ -32,7 +33,7 @@ public class ReservaView {
         frame = new JFrame();
         frame.setTitle("Reserva de instalaciones por usuarios externos");
         frame.setName("Reservas");
-        frame.setBounds(0, 0, 820, 450);
+        frame.setBounds(0, 0, 860, 520);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); // No se cierra la app al cerrar
         frame.getContentPane().setLayout(new MigLayout("", "[right][grow]", ""));
 
@@ -49,13 +50,17 @@ public class ReservaView {
         frame.getContentPane().add(new JLabel("Fecha:"));
         frame.getContentPane().add(dcFecha, "w 150!, wrap");
 
-        // Disponibilidad del dia: barra de 8:00 a 22:00 con su leyenda
+        // Disponibilidad del dia (pista "Actual") y seccion que se esta reservando (pista "Nueva")
         frame.getContentPane().add(new JLabel("Disponibilidad de 8:00 a 22:00 (pulsa una franja libre para elegirla):"),
                 "span 2, left, gaptop 10, wrap");
         panelDisponibilidad = new DisponibilidadPanel();
         panelDisponibilidad.setName("panelDisponibilidad");
         frame.getContentPane().add(panelDisponibilidad, "span 2, growx, wrap");
         frame.getContentPane().add(DisponibilidadPanel.crearLeyenda(), "span 2, left, wrap");
+        lblEstado = new JLabel(" ");
+        lblEstado.setName("lblEstado");
+        lblEstado.setFont(lblEstado.getFont().deriveFont(Font.BOLD));
+        frame.getContentPane().add(lblEstado, "span 2, left, gaptop 5, wrap");
 
         // Datos de la reserva
         JLabel lblDatos = new JLabel("Datos de la reserva");

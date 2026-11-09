@@ -101,21 +101,9 @@ public class ReservaModel {
 				"Hay que indicar el número de tarjeta bancaria para el cobro");
 		LocalDate fecha = LocalDate.parse(reserva.getFecha());
 		validateCondition(!fecha.isBefore(hoy), "No se puede reservar en una fecha pasada");
-		validateCondition(reserva.getHoraFin() - reserva.getHoraInicio() >= DURACION_MINIMA,
-				"La reserva debe durar al menos 1 hora");
-		validateCondition(reserva.getHoraInicio() >= APERTURA && reserva.getHoraFin() <= CIERRE,
-				"Solo se puede reservar entre las 8:00 y las 22:00");
-
-		for (FranjaDTO u : getUsosEquipos(reserva.getInstalacionId(), fecha)) {
-			validateCondition(!seSolapan(reserva.getHoraInicio(), reserva.getHoraFin(), u.getHoraInicio(), u.getHoraFin()),
-					"La instalación está ocupada por un equipo en esa franja");
-			validateCondition(!seSolapan(reserva.getHoraInicio(), reserva.getHoraFin(), u.getHoraFin(),
-					u.getHoraFin() + MARGEN_TRAS_EQUIPO),
-					"No se puede reservar hasta pasada 1 hora y media desde que termina el uso de un equipo");
-		}
-		for (ReservaEntity r : getReservas(reserva.getInstalacionId(), fecha))
-			validateCondition(!seSolapan(reserva.getHoraInicio(), reserva.getHoraFin(), r.getHoraInicio(), r.getHoraFin()),
-					"La instalación ya tiene otra reserva en esa franja");
+		String motivo = motivoNoReservable(reserva.getHoraInicio(), reserva.getHoraFin(),
+				getUsosEquipos(reserva.getInstalacionId(), fecha), getReservas(reserva.getInstalacionId(), fecha));
+		validateCondition(motivo == null, motivo);
 
 		reserva.setImporte(calcularImporte(reserva.getHoraInicio(), reserva.getHoraFin()));
 		db.executeUpdate("insert into reserva(instalacionId, fecha, horaInicio, horaFin, nombreUsuario, numeroTarjeta,"
@@ -124,8 +112,29 @@ public class ReservaModel {
 				reserva.getNumeroTarjeta().trim(), reserva.getImporte());
 	}
 
+	/**
+	 * Motivo por el que no se puede reservar de inicio a fin con los usos de los equipos y las reservas indicados,
+	 * o null si se puede. Comprueba la duracion, el horario, los usos (con su hora y media posterior) y las reservas
+	 */
+	public static String motivoNoReservable(int inicio, int fin, List<FranjaDTO> usos, List<ReservaEntity> reservas) {
+		if (fin - inicio < DURACION_MINIMA)
+			return "La reserva debe durar al menos 1 hora";
+		if (inicio < APERTURA || fin > CIERRE)
+			return "Solo se puede reservar entre las 8:00 y las 22:00";
+		for (FranjaDTO u : usos) {
+			if (seSolapan(inicio, fin, u.getHoraInicio(), u.getHoraFin()))
+				return "La instalación está ocupada por un equipo en esa franja";
+			if (seSolapan(inicio, fin, u.getHoraFin(), u.getHoraFin() + MARGEN_TRAS_EQUIPO))
+				return "No se puede reservar hasta pasada 1 hora y media desde que termina el uso de un equipo";
+		}
+		for (ReservaEntity r : reservas)
+			if (seSolapan(inicio, fin, r.getHoraInicio(), r.getHoraFin()))
+				return "La instalación ya tiene otra reserva en esa franja";
+		return null;
+	}
+
 	/** Dos franjas se solapan si cada una empieza antes de que acabe la otra (pegadas no se solapan) */
-	private static boolean seSolapan(int inicio1, int fin1, int inicio2, int fin2) {
+	public static boolean seSolapan(int inicio1, int fin1, int inicio2, int fin2) {
 		return inicio1 < fin2 && inicio2 < fin1;
 	}
 

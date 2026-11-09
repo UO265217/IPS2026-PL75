@@ -1,7 +1,9 @@
 package giis.ips.reservas;
 
+import java.awt.Color;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -17,10 +19,15 @@ import giis.ips.util.SwingUtil;
  */
 public class ReservaController {
 	private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+	private static final Color ROJO = new Color(0xB7, 0x1C, 0x1C);
+	private static final Color VERDE = new Color(0x1B, 0x5E, 0x20);
 
 	private ReservaModel model;
 	private ReservaView view;
 	private List<InstalacionEntity> instalaciones;
+	// Usos de los equipos y reservas del dia mostrado, para previsualizar la nueva reserva sin volver a consultarlos
+	private List<FranjaDTO> usosDia = new ArrayList<>();
+	private List<ReservaEntity> reservasDia = new ArrayList<>();
 
 	public ReservaController(ReservaModel m, ReservaView v) {
 		this.model = m;
@@ -35,7 +42,7 @@ public class ReservaController {
 		view.getPanelDisponibilidad().setOnFranja(f -> SwingUtil.exceptionWrapper(() -> elegirFranja(f)));
 		for (JSpinner sp : new JSpinner[] { view.getSpHoraInicio(), view.getSpMinInicio(), view.getSpHoraFin(),
 				view.getSpMinFin() })
-			sp.addChangeListener(e -> mostrarImporte());
+			sp.addChangeListener(e -> SwingUtil.exceptionWrapper(() -> mostrarNueva()));
 		view.getBtnReservar().addActionListener(e -> SwingUtil.exceptionWrapper(() -> reservar()));
 		view.getBtnCerrar().addActionListener(e -> view.getFrame().dispose());
 	}
@@ -48,7 +55,6 @@ public class ReservaController {
 		view.getCbInstalacion().setModel(cm);
 		SwingUtil.setIsoDate(view.getDcFecha(), LocalDate.now().toString());
 		mostrarDia();
-		mostrarImporte();
 		view.getFrame().setVisible(true);
 	}
 
@@ -64,21 +70,51 @@ public class ReservaController {
 		return i < 0 ? null : instalaciones.get(i);
 	}
 
-	/** Muestra en la barra la disponibilidad de la instalacion en la fecha elegida */
+	/** Muestra la disponibilidad de la instalacion en la fecha elegida y, sobre ella, la nueva reserva */
 	private void mostrarDia() {
 		InstalacionEntity inst = getInstalacion();
 		if (inst == null) {
+			usosDia = new ArrayList<>();
+			reservasDia = new ArrayList<>();
 			view.getPanelDisponibilidad().setDia(null, null, null);
-			return;
+		} else {
+			LocalDate fecha = getFecha();
+			usosDia = model.getUsosEquipos(inst.getId(), fecha);
+			reservasDia = model.getReservas(inst.getId(), fecha);
+			view.getPanelDisponibilidad().setDia(usosDia, reservasDia, model.getFranjasLibres(inst.getId(), fecha));
 		}
-		LocalDate fecha = getFecha();
-		view.getPanelDisponibilidad().setDia(model.getUsosEquipos(inst.getId(), fecha),
-				model.getReservas(inst.getId(), fecha), model.getFranjasLibres(inst.getId(), fecha));
+		mostrarNueva();
+	}
+
+	/**
+	 * Dibuja la seccion que se esta reservando con las horas elegidas, indica debajo si se puede reservar y
+	 * actualiza el importe
+	 */
+	private void mostrarNueva() {
+		int inicio = leerHora(view.getSpHoraInicio(), view.getSpMinInicio());
+		int fin = leerHora(view.getSpHoraFin(), view.getSpMinFin());
+		String motivo;
+		if (getInstalacion() == null)
+			motivo = "Hay que seleccionar una instalación";
+		else if (getFecha().isBefore(LocalDate.now()))
+			motivo = "No se puede reservar en una fecha pasada";
+		else
+			motivo = ReservaModel.motivoNoReservable(inicio, fin, usosDia, reservasDia);
+		view.getPanelDisponibilidad().setNueva(inicio, fin, motivo == null);
+		if (motivo == null)
+			mostrarEstado("Se puede reservar de " + formatearHora(inicio) + " a " + formatearHora(fin), VERDE);
+		else
+			mostrarEstado(motivo, ROJO);
+		mostrarImporte();
+	}
+
+	private void mostrarEstado(String texto, Color color) {
+		view.getLblEstado().setText(texto);
+		view.getLblEstado().setForeground(color);
 	}
 
 	/** Propone una reserva de la duracion minima (1 hora) desde el inicio de la franja elegida */
 	private void elegirFranja(FranjaDTO f) {
-		view.getPanelDisponibilidad().setSeleccionada(f);
 		setHora(view.getSpHoraInicio(), view.getSpMinInicio(), f.getHoraInicio());
 		setHora(view.getSpHoraFin(), view.getSpMinFin(), f.getHoraInicio() + ReservaModel.DURACION_MINIMA);
 	}
