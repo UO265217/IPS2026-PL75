@@ -15,6 +15,9 @@ import giis.ips.empleados.HorarioView;
 import giis.ips.entrenamientos.EntrenamientoController;
 import giis.ips.entrenamientos.EntrenamientoModel;
 import giis.ips.entrenamientos.EntrenamientoView;
+import giis.ips.jardineria.JardineriaController;
+import giis.ips.jardineria.JardineriaModel;
+import giis.ips.jardineria.JardineriaView;
 import giis.ips.reservas.ReservaController;
 import giis.ips.reservas.ReservaModel;
 import giis.ips.reservas.ReservaView;
@@ -66,7 +69,7 @@ public class SwingMain {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 310);
+		frame.setBounds(0, 0, 287, 340);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -150,6 +153,16 @@ public class SwingMain {
 			}
 		});
 		frame.getContentPane().add(btnEntrenamientos);
+
+		JButton btnJardineria = new JButton("Programar labor de jardinería");
+		btnJardineria.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JardineriaController controller = new JardineriaController(new JardineriaModel(), new JardineriaView());
+				controller.initController();
+			}
+		});
+		frame.getContentPane().add(btnJardineria);
 	}
 
 	public JFrame getFrame() { return this.frame; }

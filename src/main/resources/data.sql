@@ -16,7 +16,8 @@ insert into empleado(nombre, apellido, dni, telefono, fechaNacimiento, tipo, pos
     ('Carlos', 'Ruiz', '66666666Z', '600666666', '1988-02-10', 'NO_DEPORTIVO', 'VENDEDOR_ENTRADAS', 24000),
     ('Lucía', 'Gómez', '77777777B', '600777777', '1992-09-25', 'NO_DEPORTIVO', 'ENCARGADO_TIENDA', 28000),
     ('Pedro', 'Sanz', '88888888Y', '600888888', '1975-12-01', 'NO_DEPORTIVO', 'JARDINERIA', 21000),
-    ('Sara', 'Vidal', '99999999R', '600999999', '1985-06-18', 'NO_DEPORTIVO', 'DIRECTOR_COMUNICACIONES', 45000);
+    ('Sara', 'Vidal', '99999999R', '600999999', '1985-06-18', 'NO_DEPORTIVO', 'DIRECTOR_COMUNICACIONES', 45000),
+    ('Marcos', 'Díaz', '23456789D', '600123456', '1990-04-12', 'NO_DEPORTIVO', 'JARDINERIA', 21000);
 
 --Horarios de ejemplo (minutos desde las 00:00; dia 1=lunes ... 7=domingo)
 --Ana (gerente): lunes a viernes de 9:00 a 14:00 y los lunes tambien de 16:00 a 18:00 (27 h)
@@ -47,6 +48,11 @@ insert into horario(empleadoId, diaSemana, horaInicio, horaFin)
     select id, dia, 420, 780 from empleado,
         (select 1 as dia union select 2 union select 3 union select 4 union select 5 union select 6)
     where dni = '88888888Y';
+
+--Marcos (jardineria): de lunes a viernes, de 12:00 a 20:00 (40 h), para que haya mas de un jardinero (HU 36125)
+insert into horario(empleadoId, diaSemana, horaInicio, horaFin)
+    select id, dia, 720, 1200 from empleado, (select 1 as dia union select 2 union select 3 union select 4 union select 5)
+    where dni = '23456789D';
 
 --Sara (director de comunicaciones): sin horario, para ver una lista vacia
 
@@ -105,6 +111,10 @@ insert into partido(equipoId, instalacionId, fecha, horaInicio, horaFin)
 insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, horaInicio, horaFin)
     select i.id, e.id, 'Cortar el césped', '2026-11-02', 480, 540 from instalacion i, empleado e
     where i.nombre = 'Campo de entrenamiento 1' and e.dni = '88888888Y';
+--Estadio, lunes 2 de noviembre de 2026: abonar el cesped de 9:00 a 10:00 (Pedro tiene labores en dos instalaciones)
+insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, horaInicio, horaFin)
+    select i.id, e.id, 'Abonar el césped', '2026-11-02', 540, 600 from instalacion i, empleado e
+    where i.nombre = 'Estadio' and e.dni = '88888888Y';
 --Estadio, martes 3 de noviembre de 2026: revisar el riego de 9:00 a 11:00
 insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, horaInicio, horaFin)
     select i.id, e.id, 'Revisar el riego', '2026-11-03', 540, 660 from instalacion i, empleado e

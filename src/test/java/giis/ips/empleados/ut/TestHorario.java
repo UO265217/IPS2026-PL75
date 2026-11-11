@@ -191,7 +191,7 @@ class TestHorario {
 
 	@Test
 	void soloSeListanLosEmpleadosNoDeportivos() {
-		assertEquals(5, model.getEmpleadosNoDeportivos().size());
+		assertEquals(6, model.getEmpleadosNoDeportivos().size());
 		assertEquals(true, model.getEmpleadosNoDeportivos().stream().allMatch(e -> e.getTipo().equals("NO_DEPORTIVO")));
 	}
 
