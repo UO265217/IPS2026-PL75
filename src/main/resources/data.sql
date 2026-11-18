@@ -1,4 +1,5 @@
 --Datos para carga inicial de la base de datos (pruebas)
+delete from usuario;
 delete from labor_jardineria;
 delete from reserva;
 delete from partido;
@@ -119,3 +120,18 @@ insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, hora
 insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, horaInicio, horaFin)
     select i.id, e.id, 'Revisar el riego', '2026-11-03', 540, 660 from instalacion i, empleado e
     where i.nombre = 'Estadio' and e.dni = '88888888Y';
+
+--Cuentas de ejemplo (HU 37116): una por empleado salvo los de abajo; contrasena = nombre de usuario + 123
+--Sara (director de comunicaciones) y los jugadores Luis y Hugo no tienen cuenta
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'ana', 'ana123', id from empleado where dni = '11111111H';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'marta', 'marta123', id from empleado where dni = '33333333P';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'carlos', 'carlos123', id from empleado where dni = '66666666Z';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'lucia', 'lucia123', id from empleado where dni = '77777777B';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'pedro', 'pedro123', id from empleado where dni = '88888888Y';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'marcos', 'marcos123', id from empleado where dni = '23456789D';
