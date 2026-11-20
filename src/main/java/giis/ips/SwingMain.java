@@ -1,6 +1,12 @@
 package giis.ips;
 
 import giis.ips.util.Database;
+import giis.ips.login.Funcionalidad;
+import giis.ips.login.LoginController;
+import giis.ips.login.LoginModel;
+import giis.ips.login.LoginView;
+import giis.ips.login.Permisos;
+import giis.ips.login.Sesion;
 import giis.ips.empleados.AltaEmpleadoController;
 import giis.ips.empleados.AltaEmpleadoModel;
 import giis.ips.empleados.AltaEmpleadoView;
@@ -26,6 +32,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
@@ -39,6 +46,7 @@ import java.awt.event.ActionEvent;
 public class SwingMain {
 
 	private JFrame frame;
+	private final Sesion sesion;
 
 	/**
 	 * Launch the application.
@@ -47,8 +55,11 @@ public class SwingMain {
 		EventQueue.invokeLater(new Runnable() { //NOSONAR codigo autogenerado
 			public void run() {
 				try {
-					SwingMain window = new SwingMain();
-					window.frame.setVisible(true);
+					// primero el inicio de sesion (HU 37116); el menu se abre con la sesion obtenida
+					new LoginController(new LoginModel(), new LoginView(), sesion -> {
+						SwingMain window = new SwingMain(sesion);
+						window.frame.setVisible(true);
+					}).initController();
 				} catch (Exception e) {
 					e.printStackTrace(); //NOSONAR codigo autogenerado
 				}
@@ -59,8 +70,15 @@ public class SwingMain {
 	/**
 	 * Create the application.
 	 */
-	public SwingMain() {
+	public SwingMain(Sesion sesion) {
+		this.sesion = sesion;
 		initialize();
+	}
+
+	/** Anyade la opcion al menu solo si el rol de la sesion tiene acceso a esa funcionalidad (HU 37116) */
+	private void anadirOpcion(Funcionalidad funcionalidad, JButton boton) {
+		if (Permisos.puedeAcceder(sesion.getRol(), funcionalidad))
+			frame.getContentPane().add(boton);
 	}
 
 	/**
@@ -69,10 +87,12 @@ public class SwingMain {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 340);
+		frame.setBounds(0, 0, 287, 360);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+		String quien = sesion.esInvitado() ? "Invitado" : sesion.getNombreUsuario();
+		frame.getContentPane().add(new JLabel(" Sesión: " + quien + " (" + sesion.getRol() + ")"));
 
 			
 		JButton btnInicializarBaseDeDatos = new JButton("Inicializar Base de Datos en Blanco");
@@ -102,7 +122,7 @@ public class SwingMain {
 				controller.initController();
 			}
 		});
-		frame.getContentPane().add(btnInicializarAltaDeEmpleados);
+		anadirOpcion(Funcionalidad.ALTA_EMPLEADOS, btnInicializarAltaDeEmpleados);
 
 		JButton btnGestionEmpleados = new JButton("Modificar y eliminar empleados");
 		btnGestionEmpleados.addActionListener(new ActionListener() {
@@ -112,7 +132,7 @@ public class SwingMain {
 				controller.initController();
 			}
 		});
-		frame.getContentPane().add(btnGestionEmpleados);
+		anadirOpcion(Funcionalidad.GESTION_EMPLEADOS, btnGestionEmpleados);
 
 		JButton btnHorarios = new JButton("Horarios de empleados");
 		btnHorarios.addActionListener(new ActionListener() {
@@ -122,7 +142,7 @@ public class SwingMain {
 				controller.initController();
 			}
 		});
-		frame.getContentPane().add(btnHorarios);
+		anadirOpcion(Funcionalidad.HORARIOS_EMPLEADOS, btnHorarios);
 
 		JButton btnHorarioSemana = new JButton("Ver mi horario semanal");
 		btnHorarioSemana.addActionListener(new ActionListener() {
@@ -132,7 +152,7 @@ public class SwingMain {
 				controller.initController();
 			}
 		});
-		frame.getContentPane().add(btnHorarioSemana);
+		anadirOpcion(Funcionalidad.MI_HORARIO_SEMANAL, btnHorarioSemana);
 
 		JButton btnReservas = new JButton("Reservar instalación (usuario externo)");
 		btnReservas.addActionListener(new ActionListener() {
@@ -142,7 +162,7 @@ public class SwingMain {
 				controller.initController();
 			}
 		});
-		frame.getContentPane().add(btnReservas);
+		anadirOpcion(Funcionalidad.RESERVAR_INSTALACION, btnReservas);
 
 		JButton btnEntrenamientos = new JButton("Asignar entrenamiento a instalación");
 		btnEntrenamientos.addActionListener(new ActionListener() {
@@ -152,7 +172,7 @@ public class SwingMain {
 				controller.initController();
 			}
 		});
-		frame.getContentPane().add(btnEntrenamientos);
+		anadirOpcion(Funcionalidad.ASIGNAR_ENTRENAMIENTO, btnEntrenamientos);
 
 		JButton btnJardineria = new JButton("Programar labor de jardinería");
 		btnJardineria.addActionListener(new ActionListener() {
@@ -162,7 +182,7 @@ public class SwingMain {
 				controller.initController();
 			}
 		});
-		frame.getContentPane().add(btnJardineria);
+		anadirOpcion(Funcionalidad.PROGRAMAR_JARDINERIA, btnJardineria);
 	}
 
 	public JFrame getFrame() { return this.frame; }
