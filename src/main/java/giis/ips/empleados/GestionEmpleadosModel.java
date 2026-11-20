@@ -3,6 +3,7 @@ package giis.ips.empleados;
 import java.time.LocalDate;
 import java.util.List;
 
+import giis.ips.login.CuentaModel;
 import giis.ips.util.ApplicationException;
 import giis.ips.util.Database;
 
@@ -14,6 +15,7 @@ import giis.ips.util.Database;
 public class GestionEmpleadosModel {
 
 	private Database db = new Database();
+	private CuentaModel cuentas = new CuentaModel();
 
 	/** Lista de empleados del sistema, ordenados por apellido y nombre */
 	public List<EmpleadoEntity> getEmpleados() {
@@ -56,9 +58,21 @@ public class GestionEmpleadosModel {
 				empleado.getFechaNacimiento(), empleado.getSalarioAnual(), empleado.getId());
 	}
 
+	/** Usuario de la cuenta del empleado o null si no tiene (HU 37116) */
+	public String getNombreUsuario(int empleadoId) {
+		return cuentas.getNombreUsuario(empleadoId);
+	}
+
+	/** El gerente cambia el usuario y/o la contrasena del empleado; con la contrasena vacia se conserva (HU 37116) */
+	public void modificarCuenta(int empleadoId, String nombreUsuario, String contrasenaNueva) {
+		getEmpleado(empleadoId); // comprueba que existe
+		cuentas.modificar(empleadoId, nombreUsuario, contrasenaNueva);
+	}
+
 	/** Elimina del sistema al empleado con el id indicado */
 	public void eliminarEmpleado(int id) {
 		getEmpleado(id); // comprueba que existe
+		cuentas.eliminar(id); // su cuenta de acceso (HU 37116)
 		db.executeUpdate("delete from horario where empleadoId = ?", id); // sus turnos (HU 35203)
 		db.executeUpdate("delete from empleado where id = ?", id);
 	}

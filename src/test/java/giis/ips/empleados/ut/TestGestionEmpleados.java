@@ -188,4 +188,30 @@ class TestGestionEmpleados {
 		modificar("44444444A", "Hugo", "Fernández", "22222222J", "600444444", "2010-07-30", "15000.50");
 		assertEquals("Hugo", buscar("22222222J").getNombre());
 	}
+
+	// ---- Cuenta de acceso (HU 37116) ----
+
+	@Test
+	void eliminarEmpleadoBorraTambienSuCuenta() {
+		int id = buscar("11111111H").getId(); // Ana, gerente, tiene la cuenta "ana"
+		model.eliminarEmpleado(id);
+		assertTrue(db.executeQueryArray("select id from usuario where nombreUsuario = 'ana'").isEmpty());
+		assertEquals(8, model.getEmpleados().size());
+	}
+
+	@Test
+	void gerenteCambiaLaCuentaDeUnEmpleado() {
+		int id = buscar("33333333P").getId(); // Marta, entrenadora, cuenta "marta"
+		model.modificarCuenta(id, "marta.entrena", "nueva1");
+		assertEquals("marta.entrena", model.getNombreUsuario(id));
+		assertEquals(giis.ips.login.Rol.ENTRENADOR,
+				new giis.ips.login.LoginModel().iniciarSesion("marta.entrena", "nueva1").getRol());
+	}
+
+	@Test
+	void cuentaDeUnEmpleadoInexistenteNoEsValida() {
+		ApplicationException ex = assertThrows(ApplicationException.class,
+				() -> model.modificarCuenta(9999, "nadie", "clave1"));
+		assertEquals("No existe el empleado seleccionado", ex.getMessage());
+	}
 }

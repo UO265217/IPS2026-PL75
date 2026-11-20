@@ -77,6 +77,9 @@ public class GestionEmpleadosController {
 		view.getTxtSalario().setText(hay ? formatearSalario(e.getSalarioAnual()) : "");
 		view.getTxtTipo().setText(hay ? TipoEmpleado.valueOf(e.getTipo()).getNombre() : "");
 		view.getTxtPosicion().setText(hay ? Posicion.valueOf(e.getPosicion()).getNombre() : "");
+		String usuario = hay ? model.getNombreUsuario(e.getId()) : null;
+		view.getTxtUsuario().setText(usuario == null ? "" : usuario);
+		view.getTxtContrasena().setText(""); // nunca se muestra; vacia = no se cambia
 		view.getBtnGuardar().setEnabled(hay);
 		view.getBtnEliminar().setEnabled(hay);
 	}
@@ -87,7 +90,10 @@ public class GestionEmpleadosController {
 		EmpleadoEntity empleado = crearEmpleadoModificado(seleccionado, view.getTxtNombre().getText(),
 				view.getTxtApellido().getText(), view.getTxtDni().getText(), view.getTxtTelefono().getText(),
 				SwingUtil.getIsoDate(view.getDcFechaNacimiento()), view.getTxtSalario().getText());
+		String usuario = view.getTxtUsuario().getText().trim();
 		model.modificarEmpleado(empleado, LocalDate.now());
+		model.modificarCuenta(empleado.getId(), usuario.isEmpty() ? "" : AltaEmpleadoController.validarUsuario(usuario),
+				new String(view.getTxtContrasena().getPassword()));
 		JOptionPane.showMessageDialog(view.getFrame(), "Empleado " + empleado.getNombre() + " "
 				+ empleado.getApellido() + " modificado correctamente", "Modificar empleado",
 				JOptionPane.INFORMATION_MESSAGE);

@@ -20,6 +20,8 @@ public class GestionEmpleadosView {
     private JTextField txtTipo;
     private JTextField txtPosicion;
     private JTextField txtSalario;
+    private JTextField txtUsuario;
+    private JPasswordField txtContrasena;
     private JButton btnGuardar;
     private JButton btnEliminar;
     private JButton btnCerrar;
@@ -32,7 +34,7 @@ public class GestionEmpleadosView {
         frame = new JFrame();
         frame.setTitle("Modificar y eliminar empleados");
         frame.setName("GestionEmpleados");
-        frame.setBounds(0, 0, 620, 620);
+        frame.setBounds(0, 0, 620, 700);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); // No se cierra la app al cerrar
         frame.getContentPane().setLayout(new MigLayout("", "[right][grow]", "[][grow]")); // 2 columnas, la tabla crece
 
@@ -50,6 +52,14 @@ public class GestionEmpleadosView {
         txtTelefono = addCampo("Teléfono:", "txtTelefono");
         dcFechaNacimiento = addFecha("Fecha de nacimiento:", "dcFechaNacimiento");
         txtSalario = addCampo("Salario bruto anual:", "txtSalario");
+
+        // Cuenta de acceso del empleado (HU 37116): la contrasena vacia deja la que ya tiene
+        txtUsuario = addCampo("Usuario:", "txtUsuario");
+        frame.getContentPane().add(new JLabel("Nueva contraseña:"));
+        txtContrasena = new JPasswordField(20);
+        txtContrasena.setName("txtContrasena");
+        txtContrasena.setToolTipText("Vacía: se conserva la contraseña actual");
+        frame.getContentPane().add(txtContrasena, "growx, wrap");
 
         // El puesto de trabajo solo se muestra difuminado: no se puede cambiar
         txtTipo = addCampoNoEditable("Tipo de empleado:", "txtTipo");
