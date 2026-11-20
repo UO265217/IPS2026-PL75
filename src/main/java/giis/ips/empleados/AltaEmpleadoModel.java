@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
 
+import giis.ips.login.CuentaModel;
 import giis.ips.util.ApplicationException;
 import giis.ips.util.Database;
 
@@ -16,6 +17,7 @@ public class AltaEmpleadoModel {
 	public static final int MAYORIA_EDAD = 18;
 
 	private Database db = new Database();
+	private CuentaModel cuentas = new CuentaModel();
 
 	/**
 	 * Da de alta un empleado tras comprobar las reglas de negocio.
@@ -34,6 +36,20 @@ public class AltaEmpleadoModel {
 				+ " values (?, ?, ?, ?, ?, ?, ?, ?)";
 		db.executeUpdate(sql, empleado.getNombre(), empleado.getApellido(), empleado.getDni(), empleado.getTelefono(),
 				empleado.getFechaNacimiento(), empleado.getTipo(), empleado.getPosicion(), empleado.getSalarioAnual());
+	}
+
+	/**
+	 * Da de alta un empleado junto con su cuenta de acceso (HU 37116). Si algo falla no se guarda ni el empleado
+	 * ni la cuenta: el usuario se comprueba antes de insertar y el resto de reglas las valida el alta del empleado
+	 */
+	public void altaEmpleado(EmpleadoEntity empleado, LocalDate hoy, String nombreUsuario, String contrasena) {
+		validateCondition(nombreUsuario != null && !nombreUsuario.trim().isEmpty(), "El usuario es obligatorio");
+		validateCondition(!cuentas.existeUsuarioDeOtroEmpleado(nombreUsuario, 0),
+				"Ya existe una cuenta con el usuario " + nombreUsuario);
+		altaEmpleado(empleado, hoy);
+		int id = ((Number) db.executeQueryArray("select id from empleado where dni = ?", empleado.getDni()).get(0)[0])
+				.intValue();
+		cuentas.crear(id, nombreUsuario, contrasena);
 	}
 
 	/** Lista de empleados dados de alta, ordenados por apellido y nombre */

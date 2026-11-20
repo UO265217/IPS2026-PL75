@@ -19,6 +19,8 @@ public class AltaEmpleadoView {
     private JComboBox<String> cbTipo;
     private JComboBox<String> cbPosicion;
     private JTextField txtSalario;
+    private JTextField txtUsuario;
+    private JPasswordField txtContrasena;
     private JButton btnGuardar;
     private JButton btnCancelar;
 
@@ -30,7 +32,7 @@ public class AltaEmpleadoView {
         frame = new JFrame();
         frame.setTitle("Alta de empleado");
         frame.setName("AltaEmpleado");
-        frame.setBounds(0, 0, 450, 420);
+        frame.setBounds(0, 0, 450, 480);
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE); // No se cierra la app al cerrar
         frame.getContentPane().setLayout(new MigLayout("", "[right][grow]", "")); // Crea 2 columnas y la derecha crece
 
@@ -52,6 +54,13 @@ public class AltaEmpleadoView {
         frame.getContentPane().add(cbPosicion, "growx, wrap");
 
         txtSalario = addCampo("Salario bruto anual:", "txtSalario");
+
+        // Cuenta de acceso del empleado (HU 37116)
+        txtUsuario = addCampo("Usuario:", "txtUsuario");
+        frame.getContentPane().add(new JLabel("Contraseña:"));
+        txtContrasena = new JPasswordField(20);
+        txtContrasena.setName("txtContrasena");
+        frame.getContentPane().add(txtContrasena, "growx, wrap");
 
         btnCancelar = new JButton("Cancelar");
         btnCancelar.setName("btnCancelar");
