@@ -1,6 +1,7 @@
 package giis.ips;
 
 import giis.ips.util.Database;
+import giis.ips.util.SwingUtil;
 import giis.ips.login.Funcionalidad;
 import giis.ips.login.LoginController;
 import giis.ips.login.LoginModel;
@@ -55,16 +56,20 @@ public class SwingMain {
 		EventQueue.invokeLater(new Runnable() { //NOSONAR codigo autogenerado
 			public void run() {
 				try {
-					// primero el inicio de sesion (HU 37116); el menu se abre con la sesion obtenida
-					new LoginController(new LoginModel(), new LoginView(), sesion -> {
-						SwingMain window = new SwingMain(sesion);
-						window.frame.setVisible(true);
-					}).initController();
+					mostrarLogin(); // primero el inicio de sesion (HU 37116)
 				} catch (Exception e) {
 					e.printStackTrace(); //NOSONAR codigo autogenerado
 				}
 			}
 		});
+	}
+
+	/** Pantalla de acceso; al entrar (con cuenta o como invitado) se abre el menu con la sesion obtenida */
+	private static void mostrarLogin() {
+		new LoginController(new LoginModel(), new LoginView(), sesion -> {
+			SwingMain window = new SwingMain(sesion);
+			window.frame.setVisible(true);
+		}).initController();
 	}
 
 	/**
@@ -75,10 +80,20 @@ public class SwingMain {
 		initialize();
 	}
 
-	/** Anyade la opcion al menu solo si el rol de la sesion tiene acceso a esa funcionalidad (HU 37116) */
+	/**
+	 * Anyade la opcion al menu. Antes de ejecutar su accion se comprueba el rol de la sesion (HU 37116):
+	 * si no tiene acceso no se hace nada y se muestra un aviso
+	 */
 	private void anadirOpcion(Funcionalidad funcionalidad, JButton boton) {
-		if (Permisos.puedeAcceder(sesion.getRol(), funcionalidad))
-			frame.getContentPane().add(boton);
+		ActionListener[] acciones = boton.getActionListeners();
+		for (ActionListener a : acciones)
+			boton.removeActionListener(a);
+		boton.addActionListener(e -> SwingUtil.exceptionWrapper(() -> {
+			Permisos.exigir(sesion.getRol(), funcionalidad);
+			for (ActionListener a : acciones)
+				a.actionPerformed(e);
+		}));
+		frame.getContentPane().add(boton);
 	}
 
 	/**
@@ -87,7 +102,7 @@ public class SwingMain {
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 360);
+		frame.setBounds(0, 0, 287, 390);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		
 		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
@@ -183,6 +198,18 @@ public class SwingMain {
 			}
 		});
 		anadirOpcion(Funcionalidad.PROGRAMAR_JARDINERIA, btnJardineria);
+
+		// Cerrar la sesion (o salir del modo invitado) vuelve a la pantalla de acceso
+		JButton btnCerrarSesion = new JButton(sesion.esInvitado() ? "Salir del modo invitado" : "Cerrar sesión");
+		btnCerrarSesion.setName("btnCerrarSesion");
+		btnCerrarSesion.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mostrarLogin(); // primero se abre el acceso para que nunca falte una ventana abierta
+				frame.dispose();
+			}
+		});
+		frame.getContentPane().add(btnCerrarSesion);
 	}
 
 	public JFrame getFrame() { return this.frame; }
