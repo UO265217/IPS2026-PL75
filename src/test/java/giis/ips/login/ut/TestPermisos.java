@@ -2,6 +2,7 @@ package giis.ips.login.ut;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.EnumSet;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import giis.ips.login.Funcionalidad;
 import giis.ips.login.Permisos;
 import giis.ips.login.Rol;
+import giis.ips.util.ApplicationException;
 
 /**
  * Pruebas de los permisos por rol de la HU 37116
@@ -50,5 +52,25 @@ class TestPermisos {
 		assertFalse(Permisos.puedeAcceder(Rol.ENTRENADOR, Funcionalidad.PROGRAMAR_JARDINERIA));
 		assertTrue(Permisos.puedeAcceder(Rol.JARDINERIA, Funcionalidad.PROGRAMAR_JARDINERIA));
 		assertFalse(Permisos.puedeAcceder(Rol.COCINA, Funcionalidad.PROGRAMAR_JARDINERIA));
+	}
+
+	@Test
+	void gestorDeInstalacionesSoloTieneLasReservas() {
+		assertTrue(Permisos.puedeAcceder(Rol.GESTOR_INSTALACIONES, Funcionalidad.RESERVAR_INSTALACION));
+		assertFalse(Permisos.puedeAcceder(Rol.GESTOR_INSTALACIONES, Funcionalidad.ASIGNAR_ENTRENAMIENTO));
+		assertFalse(Permisos.puedeAcceder(Rol.GESTOR_INSTALACIONES, Funcionalidad.PROGRAMAR_JARDINERIA));
+	}
+
+	@Test
+	void sinPermisoSeAvisaYNoSeEjecuta() {
+		ApplicationException ex = assertThrows(ApplicationException.class,
+				() -> Permisos.exigir(Rol.INVITADO, Funcionalidad.ALTA_EMPLEADOS));
+		assertEquals("No tienes permiso para acceder a \"Alta de empleados\"", ex.getMessage());
+	}
+
+	@Test
+	void conPermisoNoHayAviso() {
+		Permisos.exigir(Rol.INVITADO, Funcionalidad.RESERVAR_INSTALACION);
+		Permisos.exigir(Rol.GERENTE, Funcionalidad.ALTA_EMPLEADOS);
 	}
 }

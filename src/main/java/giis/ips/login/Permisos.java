@@ -3,9 +3,12 @@ package giis.ips.login;
 import java.util.EnumSet;
 import java.util.Set;
 
+import giis.ips.util.ApplicationException;
+
 /**
- * Que puede hacer cada rol (HU 37116). El gerente accede a todo; el invitado solo puede reservar instalaciones;
- * el resto de roles solo ven su horario y, en su caso, la funcionalidad propia de su puesto
+ * Que puede hacer cada rol (HU 37116). El gerente accede a todo; el invitado (usuario externo) solo puede reservar
+ * instalaciones; cada empleado accede a las funcionalidades de su posicion (el gestor de instalaciones a las reservas,
+ * el entrenador a los entrenamientos, jardineria a sus labores) y a ver su propio horario
  */
 public final class Permisos {
 
@@ -22,8 +25,7 @@ public final class Permisos {
 		case ENTRENADOR:
 			return EnumSet.of(Funcionalidad.MI_HORARIO_SEMANAL, Funcionalidad.ASIGNAR_ENTRENAMIENTO);
 		case GESTOR_INSTALACIONES:
-			return EnumSet.of(Funcionalidad.MI_HORARIO_SEMANAL, Funcionalidad.RESERVAR_INSTALACION,
-					Funcionalidad.ASIGNAR_ENTRENAMIENTO, Funcionalidad.PROGRAMAR_JARDINERIA);
+			return EnumSet.of(Funcionalidad.MI_HORARIO_SEMANAL, Funcionalidad.RESERVAR_INSTALACION);
 		case JARDINERIA:
 			return EnumSet.of(Funcionalidad.MI_HORARIO_SEMANAL, Funcionalidad.PROGRAMAR_JARDINERIA);
 		default:
@@ -33,5 +35,11 @@ public final class Permisos {
 
 	public static boolean puedeAcceder(Rol rol, Funcionalidad funcionalidad) {
 		return deRol(rol).contains(funcionalidad);
+	}
+
+	/** Comprobacion previa a ejecutar una funcionalidad: si el rol no tiene acceso lanza un aviso y no se hace nada */
+	public static void exigir(Rol rol, Funcionalidad funcionalidad) {
+		if (!puedeAcceder(rol, funcionalidad))
+			throw new ApplicationException("No tienes permiso para acceder a \"" + funcionalidad.getNombre() + "\"");
 	}
 }
