@@ -1,4 +1,5 @@
 --Datos para carga inicial de la base de datos (pruebas)
+delete from usuario;
 delete from labor_jardineria;
 delete from reserva;
 delete from partido;
@@ -119,3 +120,18 @@ insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, hora
 insert into labor_jardineria(instalacionId, empleadoId, descripcion, fecha, horaInicio, horaFin)
     select i.id, e.id, 'Revisar el riego', '2026-11-03', 540, 660 from instalacion i, empleado e
     where i.nombre = 'Estadio' and e.dni = '88888888Y';
+
+--Cuentas de ejemplo (HU 37116): una por empleado salvo los de abajo; contrasena (se guarda su SHA-256) = nombre de usuario + 123
+--Sara (director de comunicaciones) y los jugadores Luis y Hugo no tienen cuenta
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'ana', 'e82827b00b2ca8620beb37f879778c082b292a52270390cff35b6fe3157f4e8b', id from empleado where dni = '11111111H';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'marta', '1012b10a6172a9e0c9cf0f81db785db1abc7cdd2eecb4a45b03442c7beb8b719', id from empleado where dni = '33333333P';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'carlos', 'ac9c2c34c9f7ad52528c3422af40a66e2e24aaf2a727831255413c9470158984', id from empleado where dni = '66666666Z';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'lucia', '5e96a6cf706c46feaeda94715b59ffa61c09f2d46c122ce7456f385de6c51a06', id from empleado where dni = '77777777B';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'pedro', '2702cb34ee041711b9df0c67a8d5c9de02110c80e3fc966ba8341456dbc9ef2b', id from empleado where dni = '88888888Y';
+insert into usuario(nombreUsuario, contrasena, empleadoId)
+    select 'marcos', 'd52d73c7f98eaf8689eb9203765ff63c991ae2948d84ca348ab5d986ebeb6ff6', id from empleado where dni = '23456789D';

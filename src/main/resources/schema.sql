@@ -1,3 +1,4 @@
+drop table if exists usuario;
 drop table if exists labor_jardineria;
 drop table if exists reserva;
 drop table if exists partido;
@@ -99,4 +100,15 @@ create table labor_jardineria (
     horaInicio integer not null,
     horaFin integer not null,
     check (horaInicio >= 0 and horaFin <= 1440 and horaInicio < horaFin)
+);
+
+--Cuentas de acceso de los empleados (HU 37116). El rol de una cuenta es la posicion del empleado al que pertenece;
+--quien entra como invitado no tiene cuenta. Un empleado tiene como mucho una cuenta
+create table usuario (
+    id integer primary key autoincrement,
+    nombreUsuario varchar(30) not null unique
+                      check (length(nombreUsuario) > 0),
+    contrasena varchar(64) not null
+                      check (length(contrasena) > 0),
+    empleadoId integer not null unique references empleado(id)
 );

@@ -52,7 +52,9 @@ public class AltaEmpleadoController {
 				view.getTxtDni().getText(), view.getTxtTelefono().getText(), SwingUtil.getIsoDate(view.getDcFechaNacimiento()),
 				(String) view.getCbTipo().getSelectedItem(), (String) view.getCbPosicion().getSelectedItem(),
 				view.getTxtSalario().getText());
-		model.altaEmpleado(empleado, LocalDate.now());
+		String usuario = validarUsuario(view.getTxtUsuario().getText());
+		String contrasena = validarContrasena(new String(view.getTxtContrasena().getPassword()));
+		model.altaEmpleado(empleado, LocalDate.now(), usuario, contrasena);
 		JOptionPane.showMessageDialog(view.getFrame(), "Empleado " + empleado.getNombre() + " " + empleado.getApellido()
 				+ " dado de alta correctamente", "Alta de empleado", JOptionPane.INFORMATION_MESSAGE);
 		limpiarFormulario();
@@ -65,6 +67,8 @@ public class AltaEmpleadoController {
 		view.getTxtTelefono().setText("");
 		view.getDcFechaNacimiento().setDate(null);
 		view.getTxtSalario().setText("");
+		view.getTxtUsuario().setText("");
+		view.getTxtContrasena().setText("");
 		view.getCbTipo().setSelectedIndex(0);
 	}
 
@@ -88,6 +92,24 @@ public class AltaEmpleadoController {
 		e.setPosicion(posicion.name());
 		e.setSalarioAnual(validarSalario(obligatorio(salario, "salario bruto anual")));
 		return e;
+	}
+
+	/** Usuario de la cuenta (HU 37116): obligatorio, sin espacios y de hasta 30 caracteres */
+	public static String validarUsuario(String usuario) {
+		String u = obligatorio(usuario, "usuario");
+		if (u.contains(" "))
+			throw new ApplicationException("El usuario no puede tener espacios");
+		if (u.length() > giis.ips.login.CuentaModel.MAX_USUARIO)
+			throw new ApplicationException("El usuario admite como mucho " + giis.ips.login.CuentaModel.MAX_USUARIO
+					+ " caracteres");
+		return u;
+	}
+
+	/** Contrasena de la cuenta (HU 37116): obligatoria; se respeta tal cual, sin quitar espacios */
+	public static String validarContrasena(String contrasena) {
+		if (contrasena == null || contrasena.isEmpty())
+			throw new ApplicationException("El campo contraseña es obligatorio");
+		return contrasena;
 	}
 
 	private static String obligatorio(String valor, String campo) {
