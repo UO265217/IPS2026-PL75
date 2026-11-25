@@ -31,21 +31,15 @@ import giis.ips.reservas.ReservaModel;
 import giis.ips.reservas.ReservaView;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.Font;
-import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSeparator;
-import javax.swing.SwingConstants;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * Punto de entrada principal. Tras el acceso muestra el menu del rol (HU 37120): uno para el gerente, otro para el
- * empleado y otro para el usuario externo, cada uno solo con los accesos permitidos.
+ * Punto de entrada principal. Tras el acceso muestra la lista de opciones que puede hacer el rol (HU 37120).
  * No sigue MVC pues es solamente temporal para que durante el desarrollo se tenga posibilidad
  * de realizar acciones de inicializacion de la base de datos
  */
@@ -124,19 +118,11 @@ public class SwingMain {
 		return boton;
 	}
 
-	/** Cabecera comun con el nombre del usuario (o "Invitado") y su rol, con el color propio de cada menu */
-	private JPanel cabecera(Color fondo, String titulo) {
-		JPanel cabecera = new JPanel(new MigLayout("insets 12 16 12 16, wrap 1", "[grow]"));
-		cabecera.setBackground(fondo);
-		JLabel lblTitulo = new JLabel(titulo);
-		lblTitulo.setForeground(Color.WHITE);
-		lblTitulo.setFont(lblTitulo.getFont().deriveFont(Font.BOLD, 16f));
-		cabecera.add(lblTitulo);
-		JLabel lblUsuario = new JLabel(MenuPrincipal.nombreMostrado(sesion) + " · " + MenuPrincipal.nombreRol(sesion.getRol()));
+	/** Linea con el nombre del usuario (o "Invitado") y su rol */
+	private JLabel etiquetaSesion() {
+		JLabel lblUsuario = new JLabel(" Sesión: " + MenuPrincipal.nombreMostrado(sesion) + " (" + MenuPrincipal.nombreRol(sesion.getRol()) + ")");
 		lblUsuario.setName("lblUsuario");
-		lblUsuario.setForeground(Color.WHITE);
-		cabecera.add(lblUsuario);
-		return cabecera;
+		return lblUsuario;
 	}
 
 	/** Cerrar la sesion (o salir del modo invitado) vuelve a la pantalla de acceso */
@@ -154,7 +140,7 @@ public class SwingMain {
 	private void anadirInicializacionBd(JPanel cuerpo) {
 		JButton btnInicializarBaseDeDatos = new JButton("Inicializar Base de Datos en Blanco");
 		btnInicializarBaseDeDatos.addActionListener(e -> new Database().createDatabase(false));
-		cuerpo.add(btnInicializarBaseDeDatos, "growx, span 2");
+		cuerpo.add(btnInicializarBaseDeDatos, "growx");
 
 		JButton btnCargarDatosIniciales = new JButton("Cargar Datos Iniciales para Pruebas");
 		btnCargarDatosIniciales.addActionListener(e -> {
@@ -162,76 +148,34 @@ public class SwingMain {
 			db.createDatabase(false);
 			db.loadDatabase();
 		});
-		cuerpo.add(btnCargarDatosIniciales, "growx, span 2");
-	}
-
-	/** Menu del gerente: todas las funcionalidades en una cuadricula de dos columnas */
-	private void menuGerente(JPanel cuerpo) {
-		frame.setTitle("Panel de gestión");
-		frame.getContentPane().add(cabecera(new Color(0x1F3A5F), "Panel del gerente"), BorderLayout.NORTH);
-		cuerpo.setLayout(new MigLayout("insets 16, wrap 2", "[grow, fill][grow, fill]", "[]10[]"));
-		List<Funcionalidad> opciones = MenuPrincipal.opciones(sesion.getRol());
-		for (Funcionalidad f : opciones)
-			cuerpo.add(botonDe(f), "h 48!");
-		cuerpo.add(new JSeparator(), "span 2, growx, gaptop 10");
-		anadirInicializacionBd(cuerpo);
-		frame.setBounds(0, 0, 520, 480);
-	}
-
-	/** Menu del empleado: lista vertical con solo los accesos de su posicion, o un mensaje si no tiene ninguno */
-	private void menuEmpleado(JPanel cuerpo) {
-		frame.setTitle("Mi espacio");
-		frame.getContentPane().add(cabecera(new Color(0x2E7D32), "Mi espacio de trabajo"), BorderLayout.NORTH);
-		cuerpo.setLayout(new MigLayout("insets 16, wrap 1", "[grow, fill]", "[]8[]"));
-		if (MenuPrincipal.sinOpciones(sesion.getRol())) {
-			JLabel lblSinOpciones = new JLabel(MenuPrincipal.MENSAJE_SIN_OPCIONES);
-			lblSinOpciones.setName("lblSinOpciones");
-			cuerpo.add(lblSinOpciones, "align center");
-		}
-		for (Funcionalidad f : MenuPrincipal.opciones(sesion.getRol()))
-			cuerpo.add(botonDe(f), "h 38!");
-		frame.setBounds(0, 0, 360, 340);
-	}
-
-	/** Menu del usuario externo: pantalla sencilla centrada en reservar una instalacion */
-	private void menuExterno(JPanel cuerpo) {
-		frame.setTitle("Reserva de instalaciones");
-		frame.getContentPane().add(cabecera(new Color(0xE65100), "Bienvenido al club"), BorderLayout.NORTH);
-		cuerpo.setLayout(new MigLayout("insets 24, wrap 1, align center center", "[grow, fill]"));
-		JLabel lblAyuda = new JLabel("¿Quieres usar una de nuestras instalaciones?");
-		lblAyuda.setHorizontalAlignment(SwingConstants.CENTER);
-		cuerpo.add(lblAyuda);
-		JButton btnReservar = botonDe(Funcionalidad.RESERVAR_INSTALACION);
-		btnReservar.setFont(btnReservar.getFont().deriveFont(Font.BOLD, 16f));
-		cuerpo.add(btnReservar, "h 60!, gaptop 10");
-		frame.setBounds(0, 0, 400, 280);
+		cuerpo.add(btnCargarDatosIniciales, "growx");
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Initialize the contents of the frame. El menu es una lista con solo las opciones que el rol puede hacer (HU 37120)
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setTitle("Main");
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout());
+		frame.getContentPane().add(etiquetaSesion(), BorderLayout.NORTH);
 
-		JPanel cuerpo = new JPanel();
-		switch (MenuPrincipal.tipoDe(sesion.getRol())) {
-		case GERENTE:
-			menuGerente(cuerpo);
-			break;
-		case EMPLEADO:
-			menuEmpleado(cuerpo);
-			break;
-		default:
-			menuExterno(cuerpo);
-			break;
+		JPanel cuerpo = new JPanel(new MigLayout("insets 8, wrap 1", "[grow, fill]"));
+		if (MenuPrincipal.tipoDe(sesion.getRol()) == MenuPrincipal.Tipo.GERENTE)
+			anadirInicializacionBd(cuerpo);
+		if (MenuPrincipal.sinOpciones(sesion.getRol())) {
+			JLabel lblSinOpciones = new JLabel(MenuPrincipal.MENSAJE_SIN_OPCIONES);
+			lblSinOpciones.setName("lblSinOpciones");
+			cuerpo.add(lblSinOpciones);
 		}
+		for (Funcionalidad f : MenuPrincipal.opciones(sesion.getRol()))
+			cuerpo.add(botonDe(f));
+		cuerpo.add(botonSalida());
 		frame.getContentPane().add(cuerpo, BorderLayout.CENTER);
 
-		JPanel pie = new JPanel(new MigLayout("insets 8 16 8 16", "[grow, right]"));
-		pie.add(botonSalida());
-		frame.getContentPane().add(pie, BorderLayout.SOUTH);
+		frame.pack();
+		frame.setMinimumSize(new java.awt.Dimension(300, 0));
 		frame.setLocationRelativeTo(null);
 	}
 
