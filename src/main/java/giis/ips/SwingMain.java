@@ -6,6 +6,7 @@ import giis.ips.login.Funcionalidad;
 import giis.ips.login.LoginController;
 import giis.ips.login.LoginModel;
 import giis.ips.login.LoginView;
+import giis.ips.login.MenuPrincipal;
 import giis.ips.login.Permisos;
 import giis.ips.login.Sesion;
 import giis.ips.empleados.AltaEmpleadoController;
@@ -29,20 +30,18 @@ import giis.ips.reservas.ReservaController;
 import giis.ips.reservas.ReservaModel;
 import giis.ips.reservas.ReservaView;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import javax.swing.JFrame;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import javax.swing.JPanel;
+import net.miginfocom.swing.MigLayout;
 
 /**
- * Punto de entrada principal que incluye botones para la ejecucion de las pantallas 
- * de las aplicaciones de ejemplo
- * y acciones de inicializacion de la base de datos.
+ * Punto de entrada principal. Tras el acceso muestra la lista de opciones que puede hacer el rol (HU 37120).
  * No sigue MVC pues es solamente temporal para que durante el desarrollo se tenga posibilidad
- * de realizar acciones de inicializacion
+ * de realizar acciones de inicializacion de la base de datos
  */
 public class SwingMain {
 
@@ -80,136 +79,104 @@ public class SwingMain {
 		initialize();
 	}
 
-	/**
-	 * Anyade la opcion al menu. Antes de ejecutar su accion se comprueba el rol de la sesion (HU 37116):
-	 * si no tiene acceso no se hace nada y se muestra un aviso
-	 */
-	private void anadirOpcion(Funcionalidad funcionalidad, JButton boton) {
-		ActionListener[] acciones = boton.getActionListeners();
-		for (ActionListener a : acciones)
-			boton.removeActionListener(a);
-		boton.addActionListener(e -> SwingUtil.exceptionWrapper(() -> {
-			Permisos.exigir(sesion.getRol(), funcionalidad);
-			for (ActionListener a : acciones)
-				a.actionPerformed(e);
-		}));
-		frame.getContentPane().add(boton);
+	/** Accion que abre la pantalla de cada funcionalidad */
+	private Runnable accionDe(Funcionalidad funcionalidad) {
+		switch (funcionalidad) {
+		case ALTA_EMPLEADOS:
+			return () -> new AltaEmpleadoController(new AltaEmpleadoModel(), new AltaEmpleadoView()).initController();
+		case GESTION_EMPLEADOS:
+			return () -> new GestionEmpleadosController(new GestionEmpleadosModel(), new GestionEmpleadosView())
+					.initController();
+		case HORARIOS_EMPLEADOS:
+			return () -> new HorarioController(new HorarioModel(), new HorarioView()).initController();
+		case MI_HORARIO_SEMANAL:
+			return () -> new HorarioSemanaController(new HorarioModel(), new HorarioSemanaView()).initController();
+		case RESERVAR_INSTALACION:
+			return () -> new ReservaController(new ReservaModel(), new ReservaView()).initController();
+		case ASIGNAR_ENTRENAMIENTO:
+			return () -> new EntrenamientoController(new EntrenamientoModel(), new EntrenamientoView())
+					.initController();
+		case PROGRAMAR_JARDINERIA:
+			return () -> new JardineriaController(new JardineriaModel(), new JardineriaView()).initController();
+		default:
+			throw new IllegalArgumentException("Funcionalidad sin pantalla: " + funcionalidad);
+		}
 	}
 
 	/**
-	 * Initialize the contents of the frame.
+	 * Boton de una funcionalidad. Antes de ejecutar su accion se comprueba el rol de la sesion (HU 37116):
+	 * si no tiene acceso no se hace nada y se muestra un aviso
+	 */
+	private JButton botonDe(Funcionalidad funcionalidad) {
+		Runnable accion = accionDe(funcionalidad);
+		JButton boton = new JButton(funcionalidad.getNombre());
+		boton.setName("btn" + funcionalidad.name());
+		boton.addActionListener(e -> SwingUtil.exceptionWrapper(() -> {
+			Permisos.exigir(sesion.getRol(), funcionalidad);
+			accion.run();
+		}));
+		return boton;
+	}
+
+	/** Linea con el nombre del usuario (o "Invitado") y su rol */
+	private JLabel etiquetaSesion() {
+		JLabel lblUsuario = new JLabel(" Sesión: " + MenuPrincipal.nombreMostrado(sesion) + " (" + MenuPrincipal.nombreRol(sesion.getRol()) + ")");
+		lblUsuario.setName("lblUsuario");
+		return lblUsuario;
+	}
+
+	/** Cerrar la sesion (o salir del modo invitado) vuelve a la pantalla de acceso */
+	private JButton botonSalida() {
+		JButton btnCerrarSesion = new JButton(MenuPrincipal.textoSalida(sesion));
+		btnCerrarSesion.setName("btnCerrarSesion");
+		btnCerrarSesion.addActionListener(e -> {
+			mostrarLogin(); // primero se abre el acceso para que nunca falte una ventana abierta
+			frame.dispose();
+		});
+		return btnCerrarSesion;
+	}
+
+	/** Opciones de arranque de la base de datos, solo para el gerente mientras no haya otra forma de cargar datos */
+	private void anadirInicializacionBd(JPanel cuerpo) {
+		JButton btnInicializarBaseDeDatos = new JButton("Inicializar Base de Datos en Blanco");
+		btnInicializarBaseDeDatos.addActionListener(e -> new Database().createDatabase(false));
+		cuerpo.add(btnInicializarBaseDeDatos, "growx");
+
+		JButton btnCargarDatosIniciales = new JButton("Cargar Datos Iniciales para Pruebas");
+		btnCargarDatosIniciales.addActionListener(e -> {
+			Database db = new Database();
+			db.createDatabase(false);
+			db.loadDatabase();
+		});
+		cuerpo.add(btnCargarDatosIniciales, "growx");
+	}
+
+	/**
+	 * Initialize the contents of the frame. El menu es una lista con solo las opciones que el rol puede hacer (HU 37120)
 	 */
 	private void initialize() {
 		frame = new JFrame();
 		frame.setTitle("Main");
-		frame.setBounds(0, 0, 287, 390);
 		frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		
-		frame.getContentPane().setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
-		String quien = sesion.esInvitado() ? "Invitado" : sesion.getNombreUsuario();
-		frame.getContentPane().add(new JLabel(" Sesión: " + quien + " (" + sesion.getRol() + ")"));
+		frame.getContentPane().setLayout(new BorderLayout());
+		frame.getContentPane().add(etiquetaSesion(), BorderLayout.NORTH);
 
-			
-		JButton btnInicializarBaseDeDatos = new JButton("Inicializar Base de Datos en Blanco");
-		btnInicializarBaseDeDatos.addActionListener(new ActionListener() { //NOSONAR codigo autogenerado
-			public void actionPerformed(ActionEvent e) {
-				Database db=new Database();
-				db.createDatabase(false);
-			}
-		});
-		frame.getContentPane().add(btnInicializarBaseDeDatos);
-			
-		JButton btnCargarDatosIniciales = new JButton("Cargar Datos Iniciales para Pruebas");
-		btnCargarDatosIniciales.addActionListener(new ActionListener() { //NOSONAR codigo autogenerado
-			public void actionPerformed(ActionEvent e) {
-				Database db=new Database();
-				db.createDatabase(false);
-				db.loadDatabase();
-			}
-		});
-		frame.getContentPane().add(btnCargarDatosIniciales);
+		JPanel cuerpo = new JPanel(new MigLayout("insets 8, wrap 1", "[grow, fill]"));
+		if (MenuPrincipal.tipoDe(sesion.getRol()) == MenuPrincipal.Tipo.GERENTE)
+			anadirInicializacionBd(cuerpo);
+		if (MenuPrincipal.sinOpciones(sesion.getRol())) {
+			JLabel lblSinOpciones = new JLabel(MenuPrincipal.MENSAJE_SIN_OPCIONES);
+			lblSinOpciones.setName("lblSinOpciones");
+			cuerpo.add(lblSinOpciones);
+		}
+		for (Funcionalidad f : MenuPrincipal.opciones(sesion.getRol()))
+			cuerpo.add(botonDe(f));
+		cuerpo.add(botonSalida());
+		frame.getContentPane().add(cuerpo, BorderLayout.CENTER);
 
-		JButton btnInicializarAltaDeEmpleados = new JButton("Inicializar Alta de Empleados");
-		btnInicializarAltaDeEmpleados.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				AltaEmpleadoController controller = new AltaEmpleadoController(new AltaEmpleadoModel(), new AltaEmpleadoView());
-				controller.initController();
-			}
-		});
-		anadirOpcion(Funcionalidad.ALTA_EMPLEADOS, btnInicializarAltaDeEmpleados);
-
-		JButton btnGestionEmpleados = new JButton("Modificar y eliminar empleados");
-		btnGestionEmpleados.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				GestionEmpleadosController controller = new GestionEmpleadosController(new GestionEmpleadosModel(), new GestionEmpleadosView());
-				controller.initController();
-			}
-		});
-		anadirOpcion(Funcionalidad.GESTION_EMPLEADOS, btnGestionEmpleados);
-
-		JButton btnHorarios = new JButton("Horarios de empleados");
-		btnHorarios.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				HorarioController controller = new HorarioController(new HorarioModel(), new HorarioView());
-				controller.initController();
-			}
-		});
-		anadirOpcion(Funcionalidad.HORARIOS_EMPLEADOS, btnHorarios);
-
-		JButton btnHorarioSemana = new JButton("Ver mi horario semanal");
-		btnHorarioSemana.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				HorarioSemanaController controller = new HorarioSemanaController(new HorarioModel(), new HorarioSemanaView());
-				controller.initController();
-			}
-		});
-		anadirOpcion(Funcionalidad.MI_HORARIO_SEMANAL, btnHorarioSemana);
-
-		JButton btnReservas = new JButton("Reservar instalación (usuario externo)");
-		btnReservas.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				ReservaController controller = new ReservaController(new ReservaModel(), new ReservaView());
-				controller.initController();
-			}
-		});
-		anadirOpcion(Funcionalidad.RESERVAR_INSTALACION, btnReservas);
-
-		JButton btnEntrenamientos = new JButton("Asignar entrenamiento a instalación");
-		btnEntrenamientos.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				EntrenamientoController controller = new EntrenamientoController(new EntrenamientoModel(), new EntrenamientoView());
-				controller.initController();
-			}
-		});
-		anadirOpcion(Funcionalidad.ASIGNAR_ENTRENAMIENTO, btnEntrenamientos);
-
-		JButton btnJardineria = new JButton("Programar labor de jardinería");
-		btnJardineria.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				JardineriaController controller = new JardineriaController(new JardineriaModel(), new JardineriaView());
-				controller.initController();
-			}
-		});
-		anadirOpcion(Funcionalidad.PROGRAMAR_JARDINERIA, btnJardineria);
-
-		// Cerrar la sesion (o salir del modo invitado) vuelve a la pantalla de acceso
-		JButton btnCerrarSesion = new JButton(sesion.esInvitado() ? "Salir del modo invitado" : "Cerrar sesión");
-		btnCerrarSesion.setName("btnCerrarSesion");
-		btnCerrarSesion.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mostrarLogin(); // primero se abre el acceso para que nunca falte una ventana abierta
-				frame.dispose();
-			}
-		});
-		frame.getContentPane().add(btnCerrarSesion);
+		frame.pack();
+		frame.setMinimumSize(new java.awt.Dimension(300, 0));
+		frame.setLocationRelativeTo(null);
 	}
 
 	public JFrame getFrame() { return this.frame; }
